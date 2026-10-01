@@ -669,24 +669,36 @@ function suggerisci(testo, limite){
   return risultati.slice(0, limite).map(function(x){ return x.o; });
 }
 function mostraSuggerimenti(testo){
-  const box = document.getElementById('suggestBox');
+  const box = document.getElementById("suggestBox");
   if(!box) return;
-  const lista = suggerisci(testo, 12);
-  if(!lista.length){ box.hidden = true; box.innerHTML = ''; return; }
-  box.innerHTML = lista.map(function(o){
-    const stato = o.alt > 0 ? 'sopra l\u2019orizzonte' : 'sotto l\u2019orizzonte';
-    return '<div class="suggest-row" data-name="' + String(o.name).replace(/"/g,'&quot;') + '">' +
+  const q = String(testo || "").trim();
+  if(q.length < 2){
+    box.hidden = true; box.innerHTML = ""; return;
+  }
+  const lista = suggerisci(testo, 14);
+  if(!lista.length){
+    box.innerHTML = '<div class="suggest-vuoto">Nessun oggetto per «' + q + '»</div>';
+    box.hidden = false;
+    return;
+  }
+  const righe = [];
+  for(let i=0; i<lista.length; i++){
+    const o = lista[i];
+    const stato = o.alt > 0 ? "sopra l\u2019orizzonte" : "sotto l\u2019orizzonte";
+    righe.push('<div class="suggest-row" data-name="' + String(o.name).replace(/"/g, "&quot;") + '">' +
       '<i style="background:' + o.color + '"></i>' +
       '<span>' + o.name + '</span>' +
-      '<em>' + o.kind + ' \u00B7 ' + stato + ' \u00B7 ' + o.alt.toFixed(0) + '\u00B0</em></div>';
-  }).join('');
+      '<em>' + o.kind + " \u00B7 " + stato + " \u00B7 " + o.alt.toFixed(0) + "\u00B0</em></div>");
+  }
+  box.innerHTML = righe.join("");
   box.hidden = false;
-  $$('.suggest-row').forEach(function(riga){
-    riga.onmousedown = function(e){
+  const elementi = $(".suggest-row");
+  for(let k=0; k<elementi.length; k++){
+    elementi[k].onmousedown = function(e){
       e.preventDefault();
-      scegliSuggerimento(this.getAttribute('data-name'));
+      scegliOggetto(this.getAttribute("data-name"), true);
     };
-  });
+  }
 }
 /* Sceglie un oggetto ovunque venga selezionato: elenco, suggerimenti, cielo o mappa.
    Ridisegna tutto e porta la mappa sull'oggetto, aprendo la scheda Mappa. */
@@ -711,12 +723,12 @@ function scegliOggetto(nome, apriMappa){
 }
 function scegliSuggerimento(nome){ scegliOggetto(nome, true); }
 function inputRicerca(){
-  const campo = document.getElementById('objectSearch');
-  const testo = campo ? campo.value : '';
+  const campo = document.getElementById("objectSearch");
+  const testo = campo ? campo.value : "";
   drawList();
-  /* se il testo e' una sigla completa (NGC 7, M 42) mostro subito i suggerimenti, senza attesa */
-  const completa = /^\s*(ngc|ic|m|messier)\s*\d{1,4}\s*$/i.test(testo);
   if(attesaSuggerimenti) clearTimeout(attesaSuggerimenti);
+  /* le sigle complete (NGC 7, M 42) mostrano i suggerimenti senza attesa */
+  const completa = /^\s*(ngc|ic|m|messier)\s*\d{1,4}\s*$/i.test(testo);
   if(completa){
     mostraSuggerimenti(testo);
   } else {
@@ -845,56 +857,62 @@ function collegaEventi(){
     slider.onchange = function(e){ muovi(e.target.value); };
   }
 
-  /* ---- casella di ricerca: suggerimenti mentre si digita ---- */
-  const ricerca = document.getElementById('objectSearch');
+    /* ---- casella di ricerca: suggerimenti mentre si digita ---- */
+  const ricerca = document.getElementById("objectSearch");
   if(ricerca){
     /* a ogni carattere: elenco filtrato e suggerimenti */
-    ricerca.oninput = function(){ inputRicerca(); };
-    /* frecce per scorrere, Invio per scegliere, Esc per chiudere */
+    ricerca.oninput = function(){
+      inputRicerca();
+    };
+
+    /* tasti: frecce per scorrere, Invio per scegliere, Esc per chiudere */
     ricerca.onkeydown = function(e){
-      const box = document.getElementById('suggestBox');
-      const visibile = box && !box.hidden;
-      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      const box = document.getElementById("suggestBox");
+      const visibile = box && box.hidden === false;
+      if(e.key === "ArrowDown" || e.key === "ArrowUp"){
         if(!visibile) return;
         e.preventDefault();
-        const righe = $('.suggest-row');
+        const righe = $$(".suggest-row");
         if(!righe.length) return;
         let idx = -1;
-        righe.forEach(function(r, i){ if(r.classList.contains('attivo')) idx = i; });
-        let prossimo = (e.key === 'ArrowDown') ? idx + 1 : idx - 1;
+        for(let i=0; i<righe.length; i++){ if(righe[i].classList.contains("attivo")) idx = i; }
+        let prossimo = (e.key === "ArrowDown") ? idx + 1 : idx - 1;
         if(prossimo < 0) prossimo = righe.length - 1;
         if(prossimo >= righe.length) prossimo = 0;
-        righe.forEach(function(r){ r.classList.remove('attivo'); });
-        righe[prossimo].classList.add('attivo');
+        for(let j=0; j<righe.length; j++){ righe[j].classList.remove("attivo"); }
+        righe[prossimo].classList.add("attivo");
         return;
       }
-      if(e.key === 'Escape'){
-        if(box){ box.hidden = true; }
+      if(e.key === "Escape"){
+        if(box) box.hidden = true;
         return;
       }
-      if(e.key === 'Enter'){
+      if(e.key === "Enter"){
         e.preventDefault();
-        /* se c'e' una riga evidenziata uso quella, altrimenti il primo suggerimento */
         let nome = null;
+        /* prima scelta: la riga evidenziata */
         if(visibile){
-          const attiva = box.querySelector('.suggest-row.attivo') || box.querySelector('.suggest-row');
-          if(attiva) nome = attiva.getAttribute('data-name');
+          const attiva = box.querySelector(".suggest-row.attivo") || box.querySelector(".suggest-row");
+          if(attiva) nome = attiva.getAttribute("data-name");
         }
-        /* se non ci sono suggerimenti, provo comunque la ricerca diretta per sigla */
+        /* seconda scelta: il primo risultato della ricerca, sempre */
         if(!nome){
           const lista = suggerisci(ricerca.value, 1);
           if(lista.length) nome = lista[0].name;
         }
         if(nome){
           scegliOggetto(nome, true);
+        } else {
+          toast("Nessun oggetto trovato per \u00AB" + ricerca.value + "\u00BB");
         }
       }
     };
-    /* clic fuori dal riquadro: chiude l'elenco */
-    document.addEventListener('click', function(e){
-      const box = document.getElementById('suggestBox');
+
+    /* clic fuori dal riquadro: chiude l elenco */
+    document.addEventListener("click", function(e){
+      const box = document.getElementById("suggestBox");
       if(!box || box.hidden) return;
-      if(box.contains(e.target) || box === e.target) return;
+      if(box.contains(e.target)) return;
       if(ricerca === e.target || ricerca.contains(e.target)) return;
       box.hidden = true;
     });

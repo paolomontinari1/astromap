@@ -68,3 +68,12 @@
 .map-stage{position:relative;flex:1;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;min-height:430px}
 .city-map{height:100%;min-height:430px}
 .sky-wrap,#skyCanvas{display:none}
+
+.suggest-box{position:relative;z-index:50;margin-top:6px;max-height:300px;overflow:auto;border:1px solid #253150;border-radius:10px;background:#0a1224;box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.suggest-row{display:grid;grid-template-columns:9px 1fr;gap:8px;align-items:center;padding:9px 11px;cursor:pointer;border-bottom:1px solid rgba(37,49,80,.55);font-size:13px}
+.suggest-row:last-child{border-bottom:none}
+.suggest-row:hover,.suggest-row.attivo{background:#16233d}
+.suggest-row i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.suggest-row span{font-weight:700}
+.suggest-row em{grid-column:2;font-style:normal;font-size:11px;color:#95a4c5}
+.suggest-vuoto{padding:10px 12px;color:#95a4c5;font-size:12px}
