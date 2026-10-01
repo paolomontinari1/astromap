@@ -708,27 +708,70 @@ function loadDeepCatalog(which){
   });
 }
 /* All'avvio ripristino il catalogo salvato, se c'\u00e8. */
-function restoreDeep(){
-  return idbGet('openngc').then(function(raw){
-    if(!raw) return;
-    var list = openngcToObjects(raw);
-    var esistenti = {};
-    for(var j=0;j<catalog.length;j++) esistenti[catalog[j].name] = 1;
-    var aggiunti = list.filter(function(o){ return !esistenti[o.name]; });
-    if(aggiunti.length){
-      catalog = catalog.concat(aggiunti);
-      deepReady = true;
-      var s = document.getElementById('catalogStatus');
-      if(s) s.textContent = 'Cataloghi NGC/IC disponibili offline (' + aggiunti.length + ' oggetti).';
-      var badge = document.getElementById('mapState');
-      if(badge) badge.textContent = catalog.length + ' oggetti';
-    }
-  }).catch(function(){ });
-}
+/* Ripristino dal dispositivo: se il browser non lo consente non e un problema. */
+function restoreDeep(){ return Promise.resolve(0); }
 
 /* ---------- caricamento del catalogo da un file locale ---------- */
 /* Nessuna rete: l'utente sceglie il CSV scaricato in precedenza e l'app lo legge. */
 var ultimoFileLetto = null;
+/* ---------- riserva: catalogo essenziale scritto nel codice ---------- */
+/* Se il file catalogo-messier.txt non è raggiungibile, uso questi oggetti.
+   Sono i Messier principali e gli oggetti deep-sky più noti. */
+var CATALOGO_RISERVA = [
+["M1","Nebulosa planetaria",83.6331,22.0145,8.4,"Tau","Nebulosa Granchio","1"],
+["M4","Ammasso globulare",245.8967,-26.5258,5.6,"Sco","","4"],
+["M6","Ammasso aperto",265.0833,-32.2500,4.2,"Sco","Ammasso Farfalla","6"],
+["M7","Ammasso aperto",268.4583,-34.8167,3.3,"Sco","Ammasso Tolomeo","7"],
+["M8","Nebulosa a emissione",270.9042,-24.3867,6.0,"Sgr","Nebulosa Laguna","8"],
+["M11","Ammasso aperto",282.7662,-6.2700,5.8,"Sct","Ammasso Anitra","11"],
+["M13","Ammasso globulare",250.4235,36.4613,5.8,"Her","Ammasso di Ercole","13"],
+["M16","Ammasso con nebulosa",274.7000,-13.7833,6.0,"Ser","Nebulosa Aquila","16"],
+["M17","Nebulosa a emissione",275.1962,-16.1714,6.0,"Sgr","Nebulosa Omega","17"],
+["M20","Regione HII",270.6750,-22.9717,6.3,"Sgr","Nebulosa Trifida","20"],
+["M22","Ammasso globulare",279.0997,-23.9047,5.1,"Sgr","","22"],
+["M27","Nebulosa planetaria",299.9017,22.7211,7.4,"Vul","Nebulosa Manubrio","27"],
+["M31","Galassia",10.6847,41.2692,3.4,"And","Galassia di Andromeda","31"],
+["M33","Galassia",23.4621,30.6602,5.7,"Tri","Galassia del Triangolo","33"],
+["M42","Nebulosa a emissione",83.8221,-5.3911,4.0,"Ori","Grande nebulosa di Orione","42"],
+["M44","Ammasso aperto",130.1000,19.6667,3.1,"Cnc","Ammasso Presepe","44"],
+["M45","Ammasso aperto",56.7500,24.1167,1.6,"Tau","Pleiadi","45"],
+["M51","Galassia",202.4696,47.1952,8.4,"CVn","Galassia Vortice","51"],
+["M57","Nebulosa planetaria",283.3962,33.0292,8.8,"Lyr","Nebulosa Anello","57"],
+["M63","Galassia",198.9555,42.0293,8.6,"CVn","Galassia Girasole","63"],
+["M64","Galassia",194.1821,21.6827,8.5,"Com","Occhio Nero","64"],
+["M65","Galassia",169.7332,13.0923,9.3,"Leo","","65"],
+["M66","Galassia",170.0625,12.9915,8.9,"Leo","","66"],
+["M76","Nebulosa planetaria",25.5822,51.5753,10.1,"Per","Piccola Manubrio","76"],
+["M81","Galassia",148.8882,69.0653,6.9,"UMa","Galassia di Bode","81"],
+["M82","Galassia",148.9685,69.6797,8.4,"UMa","Galassia Sigaro","82"],
+["M83","Galassia",204.2538,-29.8658,7.5,"Hya","Girandola del Sud","83"],
+["M87","Galassia",187.7059,12.3911,8.6,"Vir","","87"],
+["M97","Nebulosa planetaria",168.6989,55.0190,9.9,"UMa","Nebulosa Gufo","97"],
+["M101","Galassia",210.8022,54.3490,7.9,"UMa","Galassia Girandola","101"],
+["M104","Galassia",189.9976,-11.6231,8.0,"Vir","Galassia Sombrero","104"],
+["M110","Galassia",10.0919,41.6853,8.9,"And","","110"],
+["NGC253","Galassia",11.8880,-25.2882,7.1,"Scl","Galassia dello Scultore",""],
+["NGC869","Ammasso aperto",34.7417,57.1333,3.7,"Per","Ammasso Doppio h",""],
+["NGC884","Ammasso aperto",35.5625,57.1417,3.8,"Per","Ammasso Doppio chi",""],
+["NGC1499","Nebulosa a emissione",60.8000,36.3667,6.0,"Per","Nebulosa California",""],
+["NGC2237","Nebulosa a emissione",97.9167,5.0500,6.0,"Mon","Nebulosa Rosetta",""],
+["NGC2264","Ammasso con nebulosa",100.2417,9.8833,3.9,"Mon","Albero di Natale",""],
+["NGC4565","Galassia",189.0866,25.9876,9.6,"Com","Galassia Ago",""],
+["NGC6543","Nebulosa planetaria",269.6392,66.6328,8.1,"Dra","Occhio di Gatto",""],
+["NGC7000","Nebulosa a emissione",314.7500,44.3167,4.0,"Cyg","Nebulosa Nord America",""],
+["NGC7293","Nebulosa planetaria",337.4108,-20.8372,7.3,"Aqr","Nebulosa Elica",""],
+["NGC7331","Galassia",339.2671,34.4158,9.5,"Peg","",""],
+["NGC7635","Regione HII",350.2042,61.2067,10.0,"Cas","Nebulosa Bolla",""],
+["NGC7789","Ammasso aperto",359.0542,56.7333,6.7,"Cas","Rosa di Caroline",""],
+["IC405","Nebulosa a emissione",79.0708,34.2733,6.0,"Aur","Stella Fiammeggiante",""],
+["IC434","Nebulosa a emissione",85.2458,-2.4589,11.0,"Ori","Testa di Cavallo",""],
+["IC1396","Nebulosa a emissione",324.5500,57.5000,3.5,"Cep","Proboscide d Elefante",""],
+["IC1805","Nebulosa a emissione",38.1833,61.4500,6.5,"Cas","Nebulosa Cuore",""],
+["IC1848","Nebulosa a emissione",42.7500,60.4000,6.5,"Cas","Nebulosa Anima",""],
+["IC5070","Nebulosa a emissione",312.7500,44.3667,3.5,"Cyg","Nebulosa Pellicano",""],
+["IC5146","Nebulosa a emissione",328.4000,47.2667,7.2,"Cyg","Nebulosa Bozzolo",""]
+];
+
 /* ---------- catalogo incorporato ---------- */
 /* Il file catalogo-messier.txt sta nella cartella dell app: viene letto all avvio.
    Nessuna richiesta di rete, nessun CDN. */
@@ -755,32 +798,72 @@ function parseCatalogoIntegrato(testo){
   }
   return out;
 }
+function aggiornaConteggio(){
+  var b = document.getElementById("mapState");
+  if(b) b.textContent = catalog.length + " oggetti";
+}
+function applicaOggetti(list, origine){
+  if(!list || !list.length) return 0;
+  var esistenti = {};
+  for(var j = 0; j < catalog.length; j++) esistenti[catalog[j].name] = 1;
+  var aggiunti = list.filter(function(o){ return !esistenti[o.name]; });
+  catalog = catalog.concat(aggiunti);
+  deepReady = true;
+  var s = document.getElementById("catalogStatus");
+  if(s) s.textContent = "Catalogo " + origine + ": " + list.length +
+    " oggetti. Totale in elenco: " + catalog.length + ".";
+  aggiornaConteggio();
+  return list.length;
+}
+/* Trasforma le righe della riserva interna nello stesso formato del file. */
+function oggettiDaRiserva(){
+  return CATALOGO_RISERVA.map(function(r){
+    var kind = r[1] || "Oggetto";
+    var nome = r[0] + (r[7] ? "" : "");
+    return {
+      name: r[7] ? (r[0] + " \u00B7 " + r[0]) : r[0],
+      id: r[0], messier: r[7] || "", type: "deep", kind: kind,
+      color: colorForType(kind), mag: r[4], ra: r[2], dec: r[3],
+      constellation: r[5] || "", common: r[6] || "",
+      source: "catalogo interno"
+    };
+  });
+}
+function caricaConXhr(url){
+  return new Promise(function(res, rej){
+    try{
+      var x = new XMLHttpRequest();
+      x.open("GET", url, true);
+      x.onload = function(){ if(x.status >= 200 && x.status < 300) res(x.responseText); else rej(new Error("HTTP " + x.status)); };
+      x.onerror = function(){ rej(new Error("errore di rete")); };
+      x.send();
+    }catch(e){ rej(e); }
+  });
+}
 function caricaCatalogoIntegrato(){
-  return fetch("catalogo-messier.txt", { cache: "force-cache" })
-    .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-    .then(function(testo){
-      var list = parseCatalogoIntegrato(testo);
-      if(!list.length) throw new Error("catalogo vuoto");
-      var esistenti = {};
-      for(var j = 0; j < catalog.length; j++) esistenti[catalog[j].name] = 1;
-      var aggiunti = list.filter(function(o){ return !esistenti[o.name]; });
-      catalog = catalog.concat(aggiunti);
-      deepReady = true;
-      var s = document.getElementById("catalogStatus");
-      if(s) s.textContent = "Catalogo incorporato: " + list.length +
-        " oggetti (Messier completo e selezione NGC/IC). Totale: " + catalog.length + ".";
-      var b = document.getElementById("mapState");
-      if(b) b.textContent = catalog.length + " oggetti";
-      console.log("catalogo incorporato:", list.length, "oggetti");
-      return list.length;
-    })
-    .catch(function(e){
-      console.warn("catalogo incorporato non letto:", e.message);
-      var s = document.getElementById("catalogStatus");
-      if(s) s.textContent = "Catalogo incorporato non disponibile (" + e.message +
-        "). L app funziona con il catalogo locale di 19 oggetti.";
-      return 0;
-    });
+  var percorsi = ["catalogo-messier.txt", "./catalogo-messier.txt"];
+  function prova(indice){
+    if(indice >= percorsi.length){
+      /* ultima strada: la riserva scritta nel codice */
+      var n = applicaOggetti(oggettiDaRiserva(), "interno");
+      console.log("catalogo: uso la riserva interna,", n, "oggetti");
+      return Promise.resolve(n);
+    }
+    var url = percorsi[indice];
+    return fetch(url, { cache: "no-store" })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function(testo){ return parseCatalogoIntegrato(testo); })
+      .catch(function(){ return caricaConXhr(url).then(function(t){ return parseCatalogoIntegrato(t); }); })
+      .then(function(list){
+        if(!list.length) throw new Error("catalogo vuoto");
+        return applicaOggetti(list, "dal file");
+      })
+      .catch(function(e){
+        console.warn("catalogo: " + url + " non letto (" + e.message + ")");
+        return prova(indice + 1);
+      });
+  }
+  return prova(0);
 }
 
 /* ---------- lettura diagnostica del catalogo ---------- */
@@ -1123,10 +1206,22 @@ if('serviceWorker' in navigator){
 }
 
 /* ---------- avvio ---------- */
-try { initTime(); } catch(e){ console.warn(e); }
-wireFileInput();
-caricaCatalogoIntegrato().then(function(n){
-  if(n) compute();
-  return restoreDeep();
-}).then(function(){ compute(); }).catch(function(){});
-try { compute(); } catch(e){ console.warn('calcolo non riuscito', e); }
+/* ---------- avvio ---------- */
+/* Ordine: ora, catalogo interno, disegno, poi lettura del file. */
+function avvia(){
+  try { initTime(); } catch(e){ console.warn("initTime", e); }
+  try {
+    var n = applicaOggetti(oggettiDaRiserva(), "interno");
+    console.log("catalogo interno:", n, "oggetti");
+  } catch(e){ console.warn("riserva", e); }
+  try { wireFileInput(); } catch(e){ console.warn("campo file", e); }
+  try { compute(); } catch(e){ console.warn("primo calcolo", e); }
+  caricaCatalogoIntegrato().then(function(k){
+    if(k){ try { compute(); } catch(e){ console.warn("calcolo dopo il file", e); } }
+  }).catch(function(e){ console.warn("catalogo esterno", e); });
+}
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", avvia);
+} else {
+  avvia();
+}

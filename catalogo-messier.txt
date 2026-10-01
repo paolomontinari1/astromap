@@ -1,0 +1,136 @@
+M1 · NGC1952|Nebulosa planetaria|83.6331|22.0145|8.4|Tau|Nebulosa Granchio|1
+M2 · NGC7089|Ammasso globulare|323.3625|-0.8233|6.3|Aqr||2
+M3 · NGC5272|Ammasso globulare|205.5484|28.3773|6.2|CVn||3
+M4 · NGC6121|Ammasso globulare|245.8967|-26.5258|5.6|Sco||4
+M5 · NGC5904|Ammasso globulare|229.6384|2.0810|5.6|Ser||5
+M6 · NGC6405|Ammasso aperto|265.0833|-32.2500|4.2|Sco|Ammasso Farfalla|6
+M7 · NGC6475|Ammasso aperto|268.4583|-34.8167|3.3|Sco|Ammasso Tolomeo|7
+M8 · NGC6523|Nebulosa a emissione|270.9042|-24.3867|6|Sgr|Nebulosa Laguna|8
+M9 · NGC6333|Ammasso globulare|259.7992|-18.5161|7.7|Oph||9
+M10 · NGC6254|Ammasso globulare|254.2875|-4.0992|6.6|Oph||10
+M11 · NGC6705|Ammasso aperto|282.7662|-6.2700|5.8|Sct|Ammasso Anitra Selvatica|11
+M12 · NGC6218|Ammasso globulare|251.8092|-1.9481|6.7|Oph||12
+M13 · NGC6205|Ammasso globulare|250.4235|36.4613|5.8|Her|Grande ammasso di Ercole|13
+M14 · NGC6402|Ammasso globulare|264.4004|-3.2458|7.6|Oph||14
+M15 · NGC7078|Ammasso globulare|322.4929|12.1670|6.2|Peg||15
+M16 · NGC6611|Ammasso con nebulosa|274.7000|-13.7833|6|Ser|Nebulosa Aquila|16
+M17 · NGC6618|Nebulosa a emissione|275.1962|-16.1714|6|Sgr|Nebulosa Omega|17
+M18 · NGC6613|Ammasso aperto|276.1500|-17.1333|6.9|Sgr||18
+M19 · NGC6273|Ammasso globulare|255.6571|-26.2679|6.8|Oph||19
+M20 · NGC6514|Regione HII|270.6750|-22.9717|6.3|Sgr|Nebulosa Trifida|20
+M21 · NGC6531|Ammasso aperto|271.0583|-22.5000|6.5|Sgr||21
+M22 · NGC6656|Ammasso globulare|279.0997|-23.9047|5.1|Sgr||22
+M23 · NGC6494|Ammasso aperto|269.2083|-19.0167|5.5|Sgr||23
+M24 · IC4715|Ammasso aperto|274.2000|-18.5500|4.6|Sgr|Nube stellare del Sagittario|24
+M25 · IC4725|Ammasso aperto|277.9083|-19.2500|4.6|Sgr||25
+M26 · NGC6694|Ammasso aperto|281.3250|-9.3833|8|Sct||26
+M27 · NGC6853|Nebulosa planetaria|299.9017|22.7211|7.4|Vul|Nebulosa Manubrio|27
+M28 · NGC6626|Ammasso globulare|276.1371|-24.8698|6.8|Sgr||28
+M29 · NGC6913|Ammasso aperto|305.9833|38.5167|7.1|Cyg||29
+M30 · NGC7099|Ammasso globulare|325.0921|-23.1799|7.2|Cap||30
+M31 · NGC224|Galassia|10.6847|41.2692|3.4|And|Galassia di Andromeda|31
+M32 · NGC221|Galassia|10.6743|40.8652|8.1|And||32
+M33 · NGC598|Galassia|23.4621|30.6602|5.7|Tri|Galassia del Triangolo|33
+M34 · NGC1039|Ammasso aperto|40.5250|42.7167|5.2|Per||34
+M35 · NGC2168|Ammasso aperto|92.2750|24.3333|5.1|Gem||35
+M36 · NGC1960|Ammasso aperto|84.0833|34.1333|6|Aur||36
+M37 · NGC2099|Ammasso aperto|88.0750|32.5500|5.6|Aur||37
+M38 · NGC1912|Ammasso aperto|82.1750|35.8500|6.4|Aur||38
+M39 · NGC7092|Ammasso aperto|322.9250|48.4333|4.6|Cyg||39
+M40 · M40|Stella doppia|185.5500|58.1833|8.4|UMa||40
+M41 · NGC2287|Ammasso aperto|101.5000|-20.7500|4.5|CMa||41
+M42 · NGC1976|Nebulosa a emissione|83.8221|-5.3911|4|Ori|Grande nebulosa di Orione|42
+M43 · NGC1982|Regione HII|83.8792|-5.2750|9|Ori|Nebulosa De Mairan|43
+M44 · NGC2632|Ammasso aperto|130.1000|19.6667|3.1|Cnc|Ammasso Presepe|44
+M45 · Pleiadi|Ammasso aperto|56.7500|24.1167|1.6|Tau|Pleiadi|45
+M46 · NGC2437|Ammasso aperto|112.2250|-14.8167|6.1|Pup||46
+M47 · NGC2422|Ammasso aperto|114.1500|-14.4833|4.4|Pup||47
+M48 · NGC2548|Ammasso aperto|123.4250|-5.7500|5.5|Hya||48
+M49 · NGC4472|Galassia|187.4449|8.0004|8.4|Vir||49
+M50 · NGC2323|Ammasso aperto|105.6750|-8.3833|5.9|Mon||50
+M51 · NGC5194|Galassia|202.4696|47.1952|8.4|CVn|Galassia Vortice|51
+M52 · NGC7654|Ammasso aperto|350.1750|61.5833|6.9|Cas||52
+M53 · NGC5024|Ammasso globulare|198.2302|18.1681|7.7|Com||53
+M54 · NGC6715|Ammasso globulare|283.7639|-30.4800|7.7|Sgr||54
+M55 · NGC6809|Ammasso globulare|294.9987|-30.9647|6.3|Sgr||55
+M56 · NGC6779|Ammasso globulare|289.1483|30.1833|8.3|Lyr||56
+M57 · NGC6720|Nebulosa planetaria|283.3962|33.0292|8.8|Lyr|Nebulosa Anello|57
+M58 · NGC4579|Galassia|189.4312|11.8181|9.7|Vir||58
+M59 · NGC4621|Galassia|190.5096|11.6469|9.6|Vir||59
+M60 · NGC4649|Galassia|190.9167|11.5528|8.8|Vir||60
+M61 · NGC4303|Galassia|185.4788|4.4736|9.7|Vir||61
+M62 · NGC6266|Ammasso globulare|255.3025|-30.1121|6.5|Oph||62
+M63 · NGC5055|Galassia|198.9555|42.0293|8.6|CVn|Galassia Girasole|63
+M64 · NGC4826|Galassia|194.1821|21.6827|8.5|Com|Galassia Occhio Nero|64
+M65 · NGC3623|Galassia|169.7332|13.0923|9.3|Leo||65
+M66 · NGC3627|Galassia|170.0625|12.9915|8.9|Leo||66
+M67 · NGC2682|Ammasso aperto|132.8500|11.8000|6.1|Cnc||67
+M68 · NGC4590|Ammasso globulare|189.8671|-26.7437|7.8|Hya||68
+M69 · NGC6637|Ammasso globulare|277.8464|-32.3481|7.6|Sgr||69
+M70 · NGC6681|Ammasso globulare|280.8034|-32.2920|7.9|Sgr||70
+M71 · NGC6838|Ammasso globulare|298.4439|18.7792|8.2|Sge||71
+M72 · NGC6981|Ammasso globulare|313.3654|-12.5372|9.3|Aqr||72
+M73 · NGC6994|Ammasso aperto|305.0000|-12.6333|9|Aqr||73
+M74 · NGC628|Galassia|24.1741|15.7837|9.4|Psc||74
+M75 · NGC6864|Ammasso globulare|301.5201|-21.9221|8.5|Sgr||75
+M76 · NGC650|Nebulosa planetaria|25.5822|51.5753|10.1|Per|Piccola Manubrio|76
+M77 · NGC1068|Galassia|40.6697|-0.0133|8.9|Cet||77
+M78 · NGC2068|Nebulosa a riflessione|86.6908|0.0792|8.3|Ori||78
+M79 · NGC1904|Ammasso globulare|81.0441|-24.5242|7.7|Lep||79
+M80 · NGC6093|Ammasso globulare|244.2600|-22.9756|7.3|Sco||80
+M81 · NGC3031|Galassia|148.8882|69.0653|6.9|UMa|Galassia di Bode|81
+M82 · NGC3034|Galassia|148.9685|69.6797|8.4|UMa|Galassia Sigaro|82
+M83 · NGC5236|Galassia|204.2538|-29.8658|7.5|Hya|Galassia Girandola del Sud|83
+M84 · NGC4374|Galassia|186.2656|12.8870|9.1|Vir||84
+M85 · NGC4382|Galassia|186.3502|18.1911|9.1|Com||85
+M86 · NGC4406|Galassia|186.5492|12.9462|8.9|Vir||86
+M87 · NGC4486|Galassia|187.7059|12.3911|8.6|Vir||87
+M88 · NGC4501|Galassia|187.9966|14.4204|9.6|Com||88
+M89 · NGC4552|Galassia|188.9158|12.5563|9.8|Vir||89
+M90 · NGC4569|Galassia|189.2076|13.1629|9.5|Vir||90
+M91 · NGC4548|Galassia|188.8601|14.4963|10.2|Com||91
+M92 · NGC6341|Ammasso globulare|259.2809|43.1359|6.4|Her||92
+M93 · NGC2447|Ammasso aperto|114.1500|-23.8667|6.2|Pup||93
+M94 · NGC4736|Galassia|192.7210|41.1204|8.2|CVn||94
+M95 · NGC3351|Galassia|160.9904|11.7037|9.7|Leo||95
+M96 · NGC3368|Galassia|161.6920|11.8199|9.2|Leo||96
+M97 · NGC3587|Nebulosa planetaria|168.6989|55.0190|9.9|UMa|Nebulosa Gufo|97
+M98 · NGC4192|Galassia|183.4513|14.9003|10.1|Com||98
+M99 · NGC4254|Galassia|184.7066|14.4165|9.9|Com||99
+M100 · NGC4321|Galassia|185.7286|15.8221|9.3|Com||100
+M101 · NGC5457|Galassia|210.8022|54.3490|7.9|UMa|Galassia Girandola|101
+M102 · NGC5866|Galassia|226.6200|55.7633|9.9|Dra||102
+M103 · NGC581|Ammasso aperto|23.3417|60.6583|7.4|Cas||103
+M104 · NGC4594|Galassia|189.9976|-11.6231|8|Vir|Galassia Sombrero|104
+M105 · NGC3379|Galassia|161.9566|12.5817|9.3|Leo||105
+M106 · NGC4258|Galassia|184.7395|47.3037|8.4|CVn||106
+M107 · NGC6171|Ammasso globulare|248.1326|-13.0537|7.9|Oph||107
+M108 · NGC3556|Galassia|167.8791|55.6741|10|UMa||108
+M109 · NGC3992|Galassia|179.3998|53.3747|9.8|UMa||109
+M110 · NGC205|Galassia|10.0919|41.6853|8.9|And||110
+NGC253|Galassia|11.8880|-25.2882|7.1|Scl|Galassia dello Scultore|
+NGC281|Nebulosa a emissione|13.0567|56.6228|7.4|Cas|Nebulosa Pacman|
+NGC869|Ammasso aperto|34.7417|57.1333|3.7|Per|Ammasso Doppio h|
+NGC884|Ammasso aperto|35.5625|57.1417|3.8|Per|Ammasso Doppio chi|
+NGC891|Galassia|35.6392|42.3492|9.9|And||
+NGC1023|Galassia|40.1000|39.0633|9.5|Per||
+NGC1499|Nebulosa a emissione|60.8000|36.3667|6|Per|Nebulosa California|
+NGC2237|Nebulosa a emissione|97.9167|5.0500|6|Mon|Nebulosa Rosetta|
+NGC2264|Ammasso con nebulosa|100.2417|9.8833|3.9|Mon|Ammasso Albero di Natale|
+NGC2403|Galassia|114.2138|65.6026|8.4|Cam||
+NGC4565|Galassia|189.0866|25.9876|9.6|Com|Galassia Ago|
+NGC6543|Nebulosa planetaria|269.6392|66.6328|8.1|Dra|Nebulosa Occhio di Gatto|
+NGC6822|Galassia|296.2342|-14.8032|8.8|Sgr|Galassia di Barnard|
+NGC7000|Nebulosa a emissione|314.7500|44.3167|4|Cyg|Nebulosa Nord America|
+NGC7293|Nebulosa planetaria|337.4108|-20.8372|7.3|Aqr|Nebulosa Elica|
+NGC7331|Galassia|339.2671|34.4158|9.5|Peg||
+NGC7635|Regione HII|350.2042|61.2067|10|Cas|Nebulosa Bolla|
+NGC7789|Ammasso aperto|359.0542|56.7333|6.7|Cas|Rosa di Caroline|
+IC405|Nebulosa a emissione|79.0708|34.2733|6|Aur|Nebulosa Stella Fiammeggiante|
+IC434|Nebulosa a emissione|85.2458|-2.4589|11|Ori|Nebulosa Testa di Cavallo|
+IC1396|Nebulosa a emissione|324.5500|57.5000|3.5|Cep|Nebulosa Proboscide d Elefante|
+IC1805|Nebulosa a emissione|38.1833|61.4500|6.5|Cas|Nebulosa Cuore|
+IC1848|Nebulosa a emissione|42.7500|60.4000|6.5|Cas|Nebulosa Anima|
+IC342|Galassia|56.7021|68.0961|9.1|Cam||
+IC5070|Nebulosa a emissione|312.7500|44.3667|3.5|Cyg|Nebulosa Pellicano|
+IC5146|Nebulosa a emissione|328.4000|47.2667|7.2|Cyg|Nebulosa Bozzolo|
