@@ -714,8 +714,14 @@ function inputRicerca(){
   const campo = document.getElementById('objectSearch');
   const testo = campo ? campo.value : '';
   drawList();
+  /* se il testo e' una sigla completa (NGC 7, M 42) mostro subito i suggerimenti, senza attesa */
+  const completa = /^\s*(ngc|ic|m|messier)\s*\d{1,4}\s*$/i.test(testo);
   if(attesaSuggerimenti) clearTimeout(attesaSuggerimenti);
-  attesaSuggerimenti = setTimeout(function(){ mostraSuggerimenti(testo); }, 120);
+  if(completa){
+    mostraSuggerimenti(testo);
+  } else {
+    attesaSuggerimenti = setTimeout(function(){ mostraSuggerimenti(testo); }, 120);
+  }
 }
 
 function leggiFileCatalogo(file){
@@ -816,10 +822,10 @@ function useMyPosition(){
 function collegaEventi(){
   const geo = document.getElementById('geoBtn');
   if(geo) geo.onclick = useMyPosition;
-  const cerca = document.getElementById('searchPlace');
-  if(cerca) cerca.onclick = geocode;
-  const indirizzo = document.getElementById('address');
-  if(indirizzo) indirizzo.onkeydown = function(e){ if(e.key === 'Enter') geocode(); };
+
+
+
+
 
   ['lat','lon','date','time'].forEach(function(id){
     const el = document.getElementById(id);
@@ -837,6 +843,61 @@ function collegaEventi(){
     };
     slider.oninput = function(e){ muovi(e.target.value); };
     slider.onchange = function(e){ muovi(e.target.value); };
+  }
+
+  /* ---- casella di ricerca: suggerimenti mentre si digita ---- */
+  const ricerca = document.getElementById('objectSearch');
+  if(ricerca){
+    /* a ogni carattere: elenco filtrato e suggerimenti */
+    ricerca.oninput = function(){ inputRicerca(); };
+    /* frecce per scorrere, Invio per scegliere, Esc per chiudere */
+    ricerca.onkeydown = function(e){
+      const box = document.getElementById('suggestBox');
+      const visibile = box && !box.hidden;
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+        if(!visibile) return;
+        e.preventDefault();
+        const righe = $('.suggest-row');
+        if(!righe.length) return;
+        let idx = -1;
+        righe.forEach(function(r, i){ if(r.classList.contains('attivo')) idx = i; });
+        let prossimo = (e.key === 'ArrowDown') ? idx + 1 : idx - 1;
+        if(prossimo < 0) prossimo = righe.length - 1;
+        if(prossimo >= righe.length) prossimo = 0;
+        righe.forEach(function(r){ r.classList.remove('attivo'); });
+        righe[prossimo].classList.add('attivo');
+        return;
+      }
+      if(e.key === 'Escape'){
+        if(box){ box.hidden = true; }
+        return;
+      }
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        /* se c'e' una riga evidenziata uso quella, altrimenti il primo suggerimento */
+        let nome = null;
+        if(visibile){
+          const attiva = box.querySelector('.suggest-row.attivo') || box.querySelector('.suggest-row');
+          if(attiva) nome = attiva.getAttribute('data-name');
+        }
+        /* se non ci sono suggerimenti, provo comunque la ricerca diretta per sigla */
+        if(!nome){
+          const lista = suggerisci(ricerca.value, 1);
+          if(lista.length) nome = lista[0].name;
+        }
+        if(nome){
+          scegliOggetto(nome, true);
+        }
+      }
+    };
+    /* clic fuori dal riquadro: chiude l'elenco */
+    document.addEventListener('click', function(e){
+      const box = document.getElementById('suggestBox');
+      if(!box || box.hidden) return;
+      if(box.contains(e.target) || box === e.target) return;
+      if(ricerca === e.target || ricerca.contains(e.target)) return;
+      box.hidden = true;
+    });
   }
 }
 
