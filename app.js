@@ -313,7 +313,7 @@ function drawList(){
   $$('.object-row').forEach(function(el){
     el.onclick = function(){
       const f = state.positions.find(function(o){ return o.name === el.dataset.name; });
-      if(f){ state.selected = f; drawAll(localDate()); }
+      if(f){ scegliOggetto(f.name, true); }
     };
   });
 }
@@ -456,16 +456,18 @@ function drawMap(){
   const pianeti = ['moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'];
   const selezionato = state.selected;
   const mostrati = state.positions.filter(function(o){
+    /* l'oggetto selezionato compare sempre, anche se sotto l'orizzonte */
+    if(selezionato && o.name === selezionato.name) return true;
     if(o.alt <= 0) return false;
     if(o.name === 'Luna') return true;
     if(pianeti.indexOf(o.body) > -1) return true;
-    /* l'oggetto selezionato viene sempre disegnato, anche se \u00e8 deep-sky */
-    if(selezionato && o.name === selezionato.name) return true;
     return false;
   });
   mostrati.forEach(function(o){
     const isSel = state.selected && state.selected.name === o.name;
-    const frazione = 1 - Math.max(0, o.alt)/90;
+    const sottoOrizzonte = (o.alt <= 0);
+    /* se \u00e8 sotto l'orizzonte la distanza si ferma sul bordo del cerchio */
+    const frazione = sottoOrizzonte ? 1 : (1 - o.alt/90);
     const fine = destinationPoint(state.lat, state.lon, o.az, Math.max(RADIO * frazione, 0.004));
     const linea = L.polyline([[state.lat, state.lon], fine], {
       color: isSel ? '#ffc85b' : o.color, weight: isSel ? 3.5 : 2, opacity: isSel ? 0.95 : 0.75
@@ -474,13 +476,15 @@ function drawMap(){
       o.alt.toFixed(0) + '\u00B0 di altezza', { className:'astro-tip' });
     linea.on('click', function(){
       const s = state.positions.find(function(x){ return x.name === o.name; });
-      if(s){ state.selected = s; drawAll(localDate()); }
+      if(s){ scegliOggetto(s.name, false); }
     });
     state.mapRays.push(linea);
 
     const punto = L.circleMarker(fine, { radius: isSel ? 8 : 5, color:'#05201c', weight:2,
       fillColor: isSel ? '#ffc85b' : o.color, fillOpacity:1 }).addTo(state.map);
     state.mapRays.push(punto);
+    /* memorizzo la posizione sulla mappa: serve a inquadrare l'oggetto */
+    if(isSel) o._puntoMappa = fine;
 
     const versoNord = (o.az > 270 || o.az < 90);
     const etichetta = L.marker(fine, { interactive:false,
@@ -491,7 +495,14 @@ function drawMap(){
   });
 
   if(state.showProjection) state.projectionLayer.addTo(state.map);
-  state.map.setView([state.lat, state.lon], state.map.getZoom() < 16 ? 17 : state.map.getZoom());
+  /* La vista comprende sempre il cerchio dell'orizzonte e l'oggetto selezionato. */
+  const punti = [[state.lat, state.lon]];
+  if(state.selected && state.selected._puntoMappa) punti.push(state.selected._puntoMappa);
+  if(punti.length > 1 && state.map){
+    state.map.fitBounds(punti, { padding:[70, 70], maxZoom:18 });
+  } else {
+    state.map.setView([state.lat, state.lon], state.map.getZoom() < 16 ? 17 : state.map.getZoom());
+  }
 }
 
 function chiave(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -551,17 +562,28 @@ function mostraSuggerimenti(testo){
     };
   });
 }
-function scegliSuggerimento(nome){
+/* Sceglie un oggetto ovunque venga selezionato: elenco, suggerimenti, cielo o mappa.
+   Ridisegna tutto e porta la mappa sull'oggetto, aprendo la scheda Mappa. */
+function scegliOggetto(nome, apriMappa){
   const o = state.positions.find(function(x){ return x.name === nome; });
-  if(!o) return;
+  if(!o) return null;
   state.selected = o;
   const campo = document.getElementById('objectSearch');
   if(campo) campo.value = nome;
   const box = document.getElementById('suggestBox');
   if(box){ box.hidden = true; box.innerHTML = ''; }
   drawAll(localDate());
-  toast(nome + ' \u00B7 ' + (o.alt > 0 ? o.alt.toFixed(1) + '\u00B0 sull\u2019orizzonte' : 'sotto l\u2019orizzonte'));
+  if(apriMappa !== false){
+    const tab = document.querySelector('.tab[data-view=\'map\']');
+    if(tab) tab.click();
+  }
+  const posizione = o.alt > 0
+    ? (o.alt.toFixed(1) + '\u00B0 sull\u2019orizzonte')
+    : ('sotto l\u2019orizzonte, ' + o.alt.toFixed(1) + '\u00B0');
+  toast(nome + ' \u00B7 ' + posizione);
+  return o;
 }
+function scegliSuggerimento(nome){ scegliOggetto(nome, true); }
 function inputRicerca(){
   const campo = document.getElementById('objectSearch');
   const testo = campo ? campo.value : '';
@@ -772,7 +794,7 @@ function collegaEventi(){
     const o = state.positions.find(function(obj){
       return obj._hit && Math.hypot(x - obj._hit.x, y - obj._hit.y) < obj._hit.r;
     });
-    if(o){ state.selected = o; drawAll(localDate()); }
+    if(o){ scegliOggetto(o.name, false); }
   };
   document.addEventListener('click', function(e){
     const box = document.getElementById('suggestBox');
