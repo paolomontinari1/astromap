@@ -278,7 +278,7 @@ function compute(){
   drawAll(d);
 }
 function drawAll(d){
-  const passi = [drawHeader, drawList, drawSky, drawDetails, drawPlanner, drawMap];
+  const passi = [drawHeader, drawList, drawSky, drawDetails, drawPlanner, drawMap, disegnaInfogramma];
   for(let i=0; i<passi.length; i++){
     try { passi[i](d); }
     catch(e){ console.warn('passo non riuscito:', passi[i].name, e); }
@@ -502,6 +502,119 @@ function drawMap(){
     state.map.fitBounds(punti, { padding:[70, 70], maxZoom:18 });
   } else {
     state.map.setView([state.lat, state.lon], state.map.getZoom() < 16 ? 17 : state.map.getZoom());
+  }
+}
+
+/* ---------- infogramma: altezza dell oggetto durante la giornata ---------- */
+function curvaDelGiorno(o, giorno){
+  var punti = [];
+  for(var m = 0; m <= 1440; m += 10){
+    var d = new Date(giorno.getTime());
+    d.setHours(0, 0, 0, 0);
+    d.setMinutes(m);
+    var p = position(o, d);
+    punti.push({ minuti: m, alt: p.alt });
+  }
+  var sorgere = null, tramonto = null, culminazione = null;
+  for(var i = 1; i < punti.length; i++){
+    if(!sorgere && punti[i-1].alt <= 0 && punti[i].alt > 0) sorgere = punti[i];
+    if(!tramonto && sorgere && punti[i-1].alt > 0 && punti[i].alt <= 0) tramonto = punti[i];
+  }
+  for(var j = 0; j < punti.length; j++){
+    if(!culminazione || punti[j].alt > culminazione.alt) culminazione = punti[j];
+  }
+  return { punti: punti, sorgere: sorgere, culminazione: culminazione, tramonto: tramonto };
+}
+function orarioDaMinuti(minuti){
+  var h = Math.floor(minuti / 60), m = Math.round(minuti % 60);
+  return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+}
+function disegnaInfogramma(){
+  var tela = document.getElementById("infoCanvas");
+  if(!tela) return;
+  var x = tela.getContext("2d"), w = tela.width, h = tela.height;
+  x.clearRect(0, 0, w, h);
+  x.fillStyle = "#080f20";
+  x.fillRect(0, 0, w, h);
+  var o = state.selected;
+  if(!o) return;
+  var curva = curvaDelGiorno(o, localDate());
+  var sin = 46, des = 16, alto = 16, basso = 34;
+  var larghezza = w - sin - des, altezza = h - alto - basso;
+  var minY = -30, maxY = 90;
+  function yDaAlt(a){ return alto + altezza * (maxY - a) / (maxY - minY); }
+  function xDaMinuti(m){ return sin + larghezza * m / 1440; }
+  var gradini = [90, 60, 30, 0, -30];
+  x.font = "11px system-ui";
+  x.textAlign = "right";
+  for(var g = 0; g < gradini.length; g++){
+    var grado = gradini[g], y = yDaAlt(grado);
+    x.strokeStyle = (grado === 0) ? "rgba(88,214,193,.55)" : "rgba(100,130,175,.18)";
+    x.lineWidth = (grado === 0) ? 1.6 : 1;
+    x.beginPath(); x.moveTo(sin, y); x.lineTo(sin + larghezza, y); x.stroke();
+    x.fillStyle = (grado === 0) ? "#58d6c1" : "#7c8dae";
+    x.fillText(grado + "\u00B0", sin - 6, y + 4);
+  }
+  x.textAlign = "center";
+  x.fillStyle = "#7c8dae";
+  for(var ora = 0; ora <= 24; ora += 6){
+    var px = xDaMinuti(ora * 60);
+    x.strokeStyle = "rgba(100,130,175,.16)";
+    x.beginPath(); x.moveTo(px, alto); x.lineTo(px, alto + altezza); x.stroke();
+    x.fillText((ora < 10 ? "0" : "") + ora + ":00", px, h - 12);
+  }
+  x.beginPath();
+  x.moveTo(xDaMinuti(0), yDaAlt(0));
+  for(var a = 0; a < curva.punti.length; a++){
+    x.lineTo(xDaMinuti(curva.punti[a].minuti), yDaAlt(Math.max(0, curva.punti[a].alt)));
+  }
+  x.lineTo(xDaMinuti(1440), yDaAlt(0));
+  x.closePath();
+  var sfumatura = x.createLinearGradient(0, alto, 0, alto + altezza);
+  sfumatura.addColorStop(0, "rgba(88,214,193,.30)");
+  sfumatura.addColorStop(1, "rgba(88,214,193,.02)");
+  x.fillStyle = sfumatura;
+  x.fill();
+  x.beginPath();
+  for(var b = 0; b < curva.punti.length; b++){
+    var q = curva.punti[b];
+    var qx = xDaMinuti(q.minuti), qy = yDaAlt(q.alt);
+    if(b === 0) x.moveTo(qx, qy); else x.lineTo(qx, qy);
+  }
+  x.strokeStyle = "#ffc85b";
+  x.lineWidth = 2.4;
+  x.stroke();
+  function segno(p, colore, testo){
+    if(!p) return;
+    var sx = xDaMinuti(p.minuti), sy = yDaAlt(p.alt);
+    x.beginPath(); x.arc(sx, sy, 4.5, 0, Math.PI * 2);
+    x.fillStyle = colore; x.fill();
+    x.strokeStyle = "#05201c"; x.lineWidth = 1.6; x.stroke();
+    x.font = "700 10px system-ui"; x.textAlign = "center"; x.fillStyle = colore;
+    x.fillText(testo, sx, sy - 10);
+  }
+  segno(curva.sorgere, "#8db8ff", "sorge");
+  segno(curva.culminazione, "#58d6c1", "culmina");
+  segno(curva.tramonto, "#ff9f6b", "tramonta");
+  var adesso = localDate();
+  var minutiOra = adesso.getHours() * 60 + adesso.getMinutes();
+  var pxOra = xDaMinuti(minutiOra);
+  x.strokeStyle = "rgba(255,255,255,.5)";
+  x.setLineDash([4, 4]);
+  x.beginPath(); x.moveTo(pxOra, alto); x.lineTo(pxOra, alto + altezza); x.stroke();
+  x.setLineDash([]);
+  var nome = document.getElementById("infoNome");
+  if(nome) nome.textContent = o.name;
+  var riepilogo = document.getElementById("infoOrari");
+  if(riepilogo){
+    function riga(etichetta, valore){
+      return "<div class=\"info-riga\"><span>" + etichetta + "</span><strong>" + valore + "</strong></div>";
+    }
+    var sorge = curva.sorgere ? (orarioDaMinuti(curva.sorgere.minuti) + " \u00B7 0\u00B0") : "non sorge";
+    var culm = curva.culminazione ? (orarioDaMinuti(curva.culminazione.minuti) + " \u00B7 " + curva.culminazione.alt.toFixed(1) + "\u00B0") : "\u2014";
+    var tram = curva.tramonto ? (orarioDaMinuti(curva.tramonto.minuti) + " \u00B7 0\u00B0") : "non tramonta";
+    var oraAdesso = orarioDaMinuti(minutiOra) + " \u00B7 " + o.alt.toFixed(1) + "\u00B0";
+    riepilogo.innerHTML = riga("Sorge", sorge) + riga("Culmina", culm) + riga("Tramonta", tram) + riga("Adesso", oraAdesso);
   }
 }
 

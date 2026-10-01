@@ -59,20 +59,6 @@
           <button class="chip" data-filter="deep">Deep-sky</button>
         </div>
         <label class="check"><input id="aboveOnly" type="checkbox" checked /> Solo sopra l'orizzonte</label>
-        <div id="catalogButtons" class="cat-actions">
-          <button id="allDsoBtn" class="button full accent">Carica tutti gli oggetti (Messier + NGC + IC)</button>
-          <button id="messierBtn" class="button full">Solo catalogo Messier</button>
-          <button id="ngcBtn" class="button full">Solo catalogo NGC</button>
-          <button id="icBtn" class="button full">Solo catalogo IC</button>
-        </div>
-        <label class="button full file-label" for="catalogFile">Apri file catalogo (NGC.csv)</label>
-        <input id="catalogFile" type="file" accept=".csv,text/csv" hidden />
-        <p class="source-note">Se il download automatico non funziona, scarica il file <a href="https://github.com/mattiaverga/OpenNGC/raw/master/database_files/NGC.csv" target="_blank" rel="noopener">NGC.csv</a> (circa 3,7 MB) e apr&iacute;lo qui. L&rsquo;app mostra la prima riga del file scelto, cos&igrave; si vede subito se il contenuto &egrave; quello atteso.</p>
-        <div id="catalogProgress" class="progress" hidden>
-          <div class="progress-bar"><span id="progressFill"></span></div>
-          <small id="progressText"></small>
-        </div>
-        <div id="catalogStatus" class="source-note">Il catalogo Messier completo (110 oggetti) e una selezione NGC/IC sono gi&agrave; inclusi nell&rsquo;app, senza bisogno di download. Per il catalogo NGC/IC integrale puoi scaricare <a href="https://github.com/mattiaverga/OpenNGC/raw/master/database_files/NGC.csv" target="_blank" rel="noopener">NGC.csv</a> e aprirlo con il pulsante qui sotto.</div>
         <div id="objectList" class="object-list"></div>
       </section>
     </aside>
@@ -110,6 +96,12 @@
         </div>
         <div class="map-stage">
           <div id="cityMap" class="city-map"></div>
+          <aside id="infogramma" class="infogramma">
+            <span class="eyebrow">ANDAMENTO NELLA GIORNATA</span>
+            <h3 id="infoNome">&mdash;</h3>
+            <canvas id="infoCanvas" width="520" height="300" aria-label="Curva di altezza sull orizzonte"></canvas>
+            <div id="infoOrari" class="info-orari"></div>
+          </aside>
           <div id="skyOverlayLegend" class="sky-overlay-legend">
             <span><i class="ring"></i>orizzonte 0&deg;</span>
             <span><i class="mid"></i>45&deg;</span>

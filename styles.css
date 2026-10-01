@@ -51,3 +51,15 @@
 .suggest-row em{grid-column:2;font-style:normal;font-size:11px;color:var(--muted)}
 
 .luogo-tag{background:rgba(5,9,22,.85);border:1px solid #58d6c1;border-radius:8px;color:#bff9ef;font-size:11px;font-weight:700;padding:3px 7px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+
+#mapView{display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
+.map-stage{position:relative;flex:1;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;min-height:430px}
+.city-map{height:100%;min-height:430px;border-radius:14px;border:1px solid #253150;overflow:hidden;background:#0a0f1c}
+.infogramma{background:linear-gradient(150deg,rgba(16,26,49,.95),rgba(8,14,29,.97));border:1px solid #253150;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.infogramma h3{margin:0;font-size:17px}
+#infoCanvas{width:100%;height:auto;display:block}
+.info-orari{display:grid;gap:6px;font-size:12px}
+.info-riga{display:flex;justify-content:space-between;gap:10px;padding:6px 9px;border:1px solid #253150;border-radius:9px}
+.info-riga span{color:#95a4c5;text-transform:uppercase;letter-spacing:.06em;font-size:10px;font-weight:800}
+.info-riga strong{font-variant-numeric:tabular-nums}
+@media(max-width:1100px){.map-stage{grid-template-columns:1fr}.infogramma{max-height:none}}
