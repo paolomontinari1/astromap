@@ -843,6 +843,16 @@ function collegaEventi(){
     const el = document.getElementById(id);
     if(el) el.onchange = compute;
   });
+  /* ---- indirizzo: il campo e il pulsante di ricerca ---- */
+  const indirizzo = document.getElementById('address');
+  const cercaIndirizzo = document.getElementById('searchPlace');
+  if(cercaIndirizzo) cercaIndirizzo.onclick = function(){ geocode(); };
+  if(indirizzo){
+    indirizzo.onkeydown = function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); geocode(); }
+    };
+  }
+
   const slider = document.getElementById('timeSlider');
   if(slider){
     let sospeso = null;
