@@ -318,7 +318,8 @@ function drawList(){
   });
 }
 function drawSky(){
-  const c = $('#skyCanvas'); if(!c) return;
+  /* La vista Cielo e' stata rimossa: questa funzione non disegna nulla. */
+  const c = null; if(!c) return;
   const x = c.getContext('2d'), w = c.width, h = c.height;
   const cx = w/2, cy = h/2 + 10, R = Math.min(w,h)*0.42;
   x.clearRect(0,0,w,h);
@@ -403,38 +404,41 @@ function destinationPoint(lat, lon, bearing, km){
   const l2 = l1 + Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(p1), Math.cos(d) - Math.sin(p1)*Math.sin(p2));
   return [p2*R2D, l2*R2D];
 }
-function drawMap(){
-  const host = document.getElementById('cityMap');
-  if(!host) return;
-  if(typeof L === 'undefined'){
-    host.innerHTML = '<p class="muted" style="padding:20px">La mappa richiede una connessione al primo caricamento.</p>';
-    return;
-  }
-  if(!state.map){
-    state.map = L.map(host, { zoomControl:false, scrollWheelZoom:true })
-      .setView([state.lat, state.lon], state.zoom);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(state.map);
-    state.map.on('click', function(e){
-      $('#lat').value = e.latlng.lat.toFixed(6);
-      $('#lon').value = e.latlng.lng.toFixed(6);
-      state.place = 'punto selezionato';
-      state.nomeLuogo = 'punto selezionato';
-      compute();
-    });
-  }
-  if(state.mapMarker) state.map.removeLayer(state.mapMarker);
+/* Disegna cerchio, osservatore, linee e punti. Non crea e non sposta la mappa. */
+/* Ricalcola le posizioni e ridisegna solo cio che dipende dall\u2019ora.
+   La mappa non viene ricreata e la vista non viene toccata: il cursore resta fluido. */
+function aggiornaSoloTempo(){
+  try{
+    state.lat = parseFloat(document.getElementById('lat').value);
+    state.lon = parseFloat(document.getElementById('lon').value);
+    const d = localDate();
+    const prima = state.selected ? state.selected.name : null;
+    state.positions = catalog.map(function(o){ return position(o, d); });
+    state.selected = state.positions.find(function(x){ return x.name === prima; })
+                  || state.positions.find(function(x){ return x.name === 'Luna'; })
+                  || state.positions[0];
+    const centro = state.map ? state.map.getCenter() : null;
+    const zoom = state.map ? state.map.getZoom() : null;
+    try { disegnaLivelli(); } catch(e){ console.warn('livelli', e); }
+    if(state.map && centro) state.map.setView(centro, zoom, { animate:false });
+    try { disegnaInfogramma(); } catch(e){ console.warn('infogramma', e); }
+    try { drawList(); } catch(e){ console.warn('elenco', e); }
+    try { drawDetails(); } catch(e){ console.warn('scheda', e); }
+    try { drawPlanner(); } catch(e){ console.warn('pianificatore', e); }
+    try { drawHeader(d); } catch(e){ console.warn('intestazione', e); }
+  }catch(e){ console.warn('aggiornaSoloTempo', e); }
+}
+
+function disegnaLivelli(){
+  if(!state.map) return;
+  if(state.mapMarker){ state.map.removeLayer(state.mapMarker); }
   state.mapMarker = L.circleMarker([state.lat, state.lon], {
     radius:7, color:'#05201c', weight:3, fillColor:'#58d6c1', fillOpacity:1
   }).addTo(state.map).bindTooltip('Osservatore');
-
   for(let i=0; i<state.mapRays.length; i++){ state.map.removeLayer(state.mapRays[i]); }
   state.mapRays = [];
   if(state.projectionLayer){ state.map.removeLayer(state.projectionLayer); }
   state.projectionLayer = L.layerGroup();
-
   const RADIO = 0.15;
   function anello(raggioKm, colore, tratteggio, spessore){
     const punti = [];
@@ -445,64 +449,73 @@ function drawMap(){
   anello(RADIO, '#58d6c1', null, 2);
   anello(RADIO * 0.5, '#3d5a86', '4 6');
   anello(RADIO * 0.25, '#35507a', '3 7');
-
   L.marker([state.lat, state.lon], { interactive:false,
     icon: L.divIcon({ className:'zenith-tag', html:'zenit', iconSize:[46,18], iconAnchor:[23,9] })
   }).addTo(state.projectionLayer);
   L.marker(destinationPoint(state.lat, state.lon, 0, RADIO), { interactive:false,
     icon: L.divIcon({ className:'horizon-tag', html:'orizzonte 150 m', iconSize:[104,18], iconAnchor:[52,9] })
   }).addTo(state.projectionLayer);
-
   const pianeti = ['moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'];
   const selezionato = state.selected;
   const mostrati = state.positions.filter(function(o){
-    /* l'oggetto selezionato compare sempre, anche se sotto l'orizzonte */
     if(selezionato && o.name === selezionato.name) return true;
     if(o.alt <= 0) return false;
     if(o.name === 'Luna') return true;
     if(pianeti.indexOf(o.body) > -1) return true;
     return false;
   });
-  mostrati.forEach(function(o){
+  for(let k=0; k<mostrati.length; k++){
+    const o = mostrati[k];
     const isSel = state.selected && state.selected.name === o.name;
-    const sottoOrizzonte = (o.alt <= 0);
-    /* se \u00e8 sotto l'orizzonte la distanza si ferma sul bordo del cerchio */
-    const frazione = sottoOrizzonte ? 1 : (1 - o.alt/90);
+    const frazione = (o.alt <= 0) ? 1 : (1 - o.alt/90);
     const fine = destinationPoint(state.lat, state.lon, o.az, Math.max(RADIO * frazione, 0.004));
     const linea = L.polyline([[state.lat, state.lon], fine], {
       color: isSel ? '#ffc85b' : o.color, weight: isSel ? 3.5 : 2, opacity: isSel ? 0.95 : 0.75
     }).addTo(state.map);
     linea.bindTooltip(o.name + ' \u00B7 azimut ' + o.az.toFixed(0) + '\u00B0 \u00B7 ' +
       o.alt.toFixed(0) + '\u00B0 di altezza', { className:'astro-tip' });
-    linea.on('click', function(){
-      const s = state.positions.find(function(x){ return x.name === o.name; });
-      if(s){ scegliOggetto(s.name, false); }
-    });
+    const nome = o.name;
+    linea.on('click', function(){ scegliOggetto(nome, false); });
     state.mapRays.push(linea);
-
     const punto = L.circleMarker(fine, { radius: isSel ? 8 : 5, color:'#05201c', weight:2,
       fillColor: isSel ? '#ffc85b' : o.color, fillOpacity:1 }).addTo(state.map);
     state.mapRays.push(punto);
-    /* memorizzo la posizione sulla mappa: serve a inquadrare l'oggetto */
-    if(isSel) o._puntoMappa = fine;
-
     const versoNord = (o.az > 270 || o.az < 90);
     const etichetta = L.marker(fine, { interactive:false,
       icon: L.divIcon({ className:'object-label' + (isSel ? ' is-selected' : ''),
         html:'<span style="color:' + (isSel ? '#ffc85b' : o.color) + '">' + o.name + '</span>',
         iconSize:[0,0], iconAnchor:[versoNord ? -12 : 12, 8] }) }).addTo(state.map);
     state.mapRays.push(etichetta);
-  });
-
-  if(state.showProjection) state.projectionLayer.addTo(state.map);
-  /* La vista comprende sempre il cerchio dell'orizzonte e l'oggetto selezionato. */
-  const punti = [[state.lat, state.lon]];
-  if(state.selected && state.selected._puntoMappa) punti.push(state.selected._puntoMappa);
-  if(punti.length > 1 && state.map){
-    state.map.fitBounds(punti, { padding:[70, 70], maxZoom:18 });
-  } else {
-    state.map.setView([state.lat, state.lon], state.map.getZoom() < 16 ? 17 : state.map.getZoom());
   }
+  if(state.showProjection) state.projectionLayer.addTo(state.map);
+}
+
+function drawMap(){
+  const host = document.getElementById('cityMap');
+  if(!host) return;
+  if(typeof L === 'undefined'){
+    host.innerHTML = '<p class="muted" style="padding:20px">La mappa richiede una connessione al primo caricamento.</p>';
+    return;
+  }
+  /* La mappa viene creata una sola volta. Non la ricreo mai: e\u2019 questa
+     la ragione per cui lo scorrimento delle ore resta fluido. */
+  if(!state.map){
+    state.map = L.map(host, { zoomControl:false, scrollWheelZoom:true, inertia:true })
+      .setView([state.lat, state.lon], state.zoom || 17);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(state.map);
+    /* Un clic sulla mappa sposta l\u2019osservatore, senza toccare la vista. */
+    state.map.on('click', function(e){
+      document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+      document.getElementById('lon').value = e.latlng.lng.toFixed(6);
+      state.place = 'punto selezionato';
+      state.nomeLuogo = 'punto selezionato';
+      aggiornaSoloTempo();
+    });
+  }
+  disegnaLivelli();
 }
 
 /* ---------- infogramma: altezza dell oggetto durante la giornata ---------- */
@@ -813,125 +826,17 @@ function collegaEventi(){
     if(el) el.onchange = compute;
   });
   const slider = document.getElementById('timeSlider');
-  if(slider) slider.oninput = function(e){
-    const m = parseInt(e.target.value, 10);
-    const t = document.getElementById('time');
-    if(t) t.value = String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0');
-    compute();
-  };
-  const tempo = document.getElementById('time');
-  if(tempo) tempo.oninput = function(e){
-    const p = e.target.value.split(':');
-    if(p.length >= 2 && slider) slider.value = parseInt(p[0],10)*60 + parseInt(p[1],10);
-  };
-
-  const ricerca = document.getElementById('objectSearch');
-  if(ricerca) ricerca.oninput = inputRicerca;
-  if(ricerca) ricerca.onkeydown = function(e){
-    const box = document.getElementById('suggestBox');
-    if(!box || box.hidden) return;
-    const righe = $$('.suggest-row');
-    if(!righe.length) return;
-    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
-      e.preventDefault();
-      let idx = -1;
-      righe.forEach(function(r,i){ if(r.classList.contains('attivo')) idx = i; });
-      let prossimo = (e.key === 'ArrowDown') ? idx + 1 : idx - 1;
-      if(prossimo < 0) prossimo = righe.length - 1;
-      if(prossimo >= righe.length) prossimo = 0;
-      righe.forEach(function(r){ r.classList.remove('attivo'); });
-      righe[prossimo].classList.add('attivo');
-    } else if(e.key === 'Enter'){
-      e.preventDefault();
-      const attiva = box.querySelector('.suggest-row.attivo') || righe[0];
-      scegliSuggerimento(attiva.getAttribute('data-name'));
-    } else if(e.key === 'Escape'){
-      box.hidden = true;
-    }
-  };
-
-  const sopra = document.getElementById('aboveOnly');
-  if(sopra) sopra.onchange = drawList;
-
-  $$('.chip').forEach(function(b){
-    b.onclick = function(){
-      $$('.chip').forEach(function(x){ x.classList.remove('active'); });
-      b.classList.add('active');
-      state.filter = b.dataset.filter;
-      drawList();
+  if(slider){
+    let sospeso = null;
+    const muovi = function(valore){
+      const m = parseInt(valore, 10);
+      const t = document.getElementById('time');
+      if(t) t.value = String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0');
+      /* nessuna attesa: il calcolo e il disegno sono brevi, il cursore non si blocca */
+      aggiornaSoloTempo();
     };
-  });
-  $$('.tab').forEach(function(b){
-    b.onclick = function(){
-      $$('.tab').forEach(function(x){ x.classList.remove('active'); });
-      $$('.view').forEach(function(x){ x.classList.remove('active'); });
-      b.classList.add('active');
-      const v = document.getElementById(b.dataset.view + 'View');
-      if(v) v.classList.add('active');
-      if(b.dataset.view === 'map'){
-        try {
-          if(state.map){ setTimeout(function(){ state.map.invalidateSize(); drawMap(); }, 60); }
-          else drawMap();
-        } catch(e){ console.warn('mappa', e); }
-      }
-    };
-  });
-
-  const live = document.getElementById('liveBtn');
-  if(live) live.onclick = function(){ initTime(); compute(); };
-  const centra = document.getElementById('recenterBtn');
-  if(centra) centra.onclick = function(){
-    if(state.map) state.map.setView([state.lat, state.lon], 17);
-    toast('Mappa centrata sull\u2019osservatore');
-  };
-  const piu = document.getElementById('zoomInBtn');
-  if(piu) piu.onclick = function(){ if(state.map) state.map.zoomIn(); };
-  const meno = document.getElementById('zoomOutBtn');
-  if(meno) meno.onclick = function(){ if(state.map) state.map.zoomOut(); };
-  const proiezione = document.getElementById('overlayBtn');
-  if(proiezione) proiezione.onclick = function(){
-    state.showProjection = !state.showProjection;
-    proiezione.textContent = state.showProjection ? 'Proiezione cielo' : 'Proiezione spenta';
-    drawMap();
-  };
-  const campoFile = document.getElementById('catalogFile');
-  if(campoFile) campoFile.onchange = function(e){
-    const f = e.target.files && e.target.files[0];
-    if(f) leggiFileCatalogo(f);
-  };
-  const tela = document.getElementById('skyCanvas');
-  if(tela) tela.onclick = function(e){
-    const r = e.target.getBoundingClientRect();
-    const x = (e.clientX - r.left) * e.target.width / r.width;
-    const y = (e.clientY - r.top) * e.target.height / r.height;
-    const o = state.positions.find(function(obj){
-      return obj._hit && Math.hypot(x - obj._hit.x, y - obj._hit.y) < obj._hit.r;
-    });
-    if(o){ scegliOggetto(o.name, false); }
-  };
-  document.addEventListener('click', function(e){
-    const box = document.getElementById('suggestBox');
-    const campo = document.getElementById('objectSearch');
-    if(!box || box.hidden) return;
-    if(box.contains(e.target) || (campo && campo === e.target)) return;
-    box.hidden = true;
-  });
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault(); state.deferred = e;
-    const b = document.getElementById('installBtn');
-    if(b) b.hidden = false;
-  });
-  const installa = document.getElementById('installBtn');
-  if(installa) installa.onclick = function(){
-    if(state.deferred){
-      state.deferred.prompt();
-      state.deferred.userChoice.then(function(){ state.deferred = null; installa.hidden = true; });
-    }
-  };
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js').catch(function(e){ console.warn('service worker', e); });
-    });
+    slider.oninput = function(e){ muovi(e.target.value); };
+    slider.onchange = function(e){ muovi(e.target.value); };
   }
 }
 

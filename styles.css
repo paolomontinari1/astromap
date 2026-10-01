@@ -63,3 +63,8 @@
 .info-riga span{color:#95a4c5;text-transform:uppercase;letter-spacing:.06em;font-size:10px;font-weight:800}
 .info-riga strong{font-variant-numeric:tabular-nums}
 @media(max-width:1100px){.map-stage{grid-template-columns:1fr}.infogramma{max-height:none}}
+
+/* mappa fissa */
+.map-stage{position:relative;flex:1;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;min-height:430px}
+.city-map{height:100%;min-height:430px}
+.sky-wrap,#skyCanvas{display:none}
