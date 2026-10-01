@@ -42,141 +42,157 @@ const CORPI = [
 
 /* Messier completo + selezione NGC/IC: nome, tipo, RA, Dec, magnitudine, costellazione, nome comune, numero Messier */
 const DEEP = [
-['M1','Nebulosa planetaria',83.6331,22.0145,8.4,'Tau','Nebulosa Granchio','1'],
-['M2','Ammasso globulare',323.3625,-0.8233,6.3,'Aqr','','2'],
-['M3','Ammasso globulare',205.5484,28.3773,6.2,'CVn','','3'],
-['M4','Ammasso globulare',245.8967,-26.5258,5.6,'Sco','','4'],
-['M5','Ammasso globulare',229.6384,2.0810,5.6,'Ser','','5'],
-['M6','Ammasso aperto',265.0833,-32.2500,4.2,'Sco','Ammasso Farfalla','6'],
-['M7','Ammasso aperto',268.4583,-34.8167,3.3,'Sco','Ammasso Tolomeo','7'],
-['M8','Nebulosa a emissione',270.9042,-24.3867,6.0,'Sgr','Nebulosa Laguna','8'],
-['M9','Ammasso globulare',259.7992,-18.5161,7.7,'Oph','','9'],
-['M10','Ammasso globulare',254.2875,-4.0992,6.6,'Oph','','10'],
-['M11','Ammasso aperto',282.7662,-6.2700,5.8,'Sct','Ammasso Anitra','11'],
-['M12','Ammasso globulare',251.8092,-1.9481,6.7,'Oph','','12'],
-['M13','Ammasso globulare',250.4235,36.4613,5.8,'Her','Ammasso di Ercole','13'],
-['M14','Ammasso globulare',264.4004,-3.2458,7.6,'Oph','','14'],
-['M15','Ammasso globulare',322.4929,12.1670,6.2,'Peg','','15'],
-['M16','Ammasso con nebulosa',274.7000,-13.7833,6.0,'Ser','Nebulosa Aquila','16'],
-['M17','Nebulosa a emissione',275.1962,-16.1714,6.0,'Sgr','Nebulosa Omega','17'],
-['M18','Ammasso aperto',276.1500,-17.1333,6.9,'Sgr','','18'],
-['M19','Ammasso globulare',255.6571,-26.2679,6.8,'Oph','','19'],
-['M20','Regione HII',270.6750,-22.9717,6.3,'Sgr','Nebulosa Trifida','20'],
-['M21','Ammasso aperto',271.0583,-22.5000,6.5,'Sgr','','21'],
-['M22','Ammasso globulare',279.0997,-23.9047,5.1,'Sgr','','22'],
-['M23','Ammasso aperto',269.2083,-19.0167,5.5,'Sgr','','23'],
-['M24','Ammasso aperto',274.2000,-18.5500,4.6,'Sgr','Nube del Sagittario','24'],
-['M25','Ammasso aperto',277.9083,-19.2500,4.6,'Sgr','','25'],
-['M26','Ammasso aperto',281.3250,-9.3833,8.0,'Sct','','26'],
-['M27','Nebulosa planetaria',299.9017,22.7211,7.4,'Vul','Nebulosa Manubrio','27'],
-['M28','Ammasso globulare',276.1371,-24.8698,6.8,'Sgr','','28'],
-['M29','Ammasso aperto',305.9833,38.5167,7.1,'Cyg','','29'],
-['M30','Ammasso globulare',325.0921,-23.1799,7.2,'Cap','','30'],
-['M31','Galassia',10.6847,41.2692,3.4,'And','Galassia di Andromeda','31'],
-['M32','Galassia',10.6743,40.8652,8.1,'And','','32'],
-['M33','Galassia',23.4621,30.6602,5.7,'Tri','Galassia del Triangolo','33'],
-['M34','Ammasso aperto',40.5250,42.7167,5.2,'Per','','34'],
-['M35','Ammasso aperto',92.2750,24.3333,5.1,'Gem','','35'],
-['M36','Ammasso aperto',84.0833,34.1333,6.0,'Aur','','36'],
-['M37','Ammasso aperto',88.0750,32.5500,5.6,'Aur','','37'],
-['M38','Ammasso aperto',82.1750,35.8500,6.4,'Aur','','38'],
-['M39','Ammasso aperto',322.9250,48.4333,4.6,'Cyg','','39'],
-['M41','Ammasso aperto',101.5000,-20.7500,4.5,'CMa','','41'],
-['M42','Nebulosa a emissione',83.8221,-5.3911,4.0,'Ori','Grande nebulosa di Orione','42'],
-['M43','Regione HII',83.8792,-5.2750,9.0,'Ori','Nebulosa De Mairan','43'],
-['M44','Ammasso aperto',130.1000,19.6667,3.1,'Cnc','Ammasso Presepe','44'],
-['M45','Ammasso aperto',56.7500,24.1167,1.6,'Tau','Pleiadi','45'],
-['M46','Ammasso aperto',112.2250,-14.8167,6.1,'Pup','','46'],
-['M47','Ammasso aperto',114.1500,-14.4833,4.4,'Pup','','47'],
-['M48','Ammasso aperto',123.4250,-5.7500,5.5,'Hya','','48'],
-['M49','Galassia',187.4449,8.0004,8.4,'Vir','','49'],
-['M50','Ammasso aperto',105.6750,-8.3833,5.9,'Mon','','50'],
-['M51','Galassia',202.4696,47.1952,8.4,'CVn','Galassia Vortice','51'],
-['M52','Ammasso aperto',350.1750,61.5833,6.9,'Cas','','52'],
-['M53','Ammasso globulare',198.2302,18.1681,7.7,'Com','','53'],
-['M54','Ammasso globulare',283.7639,-30.4800,7.7,'Sgr','','54'],
-['M55','Ammasso globulare',294.9987,-30.9647,6.3,'Sgr','','55'],
-['M56','Ammasso globulare',289.1483,30.1833,8.3,'Lyr','','56'],
-['M57','Nebulosa planetaria',283.3962,33.0292,8.8,'Lyr','Nebulosa Anello','57'],
-['M58','Galassia',189.4312,11.8181,9.7,'Vir','','58'],
-['M59','Galassia',190.5096,11.6469,9.6,'Vir','','59'],
-['M60','Galassia',190.9167,11.5528,8.8,'Vir','','60'],
-['M61','Galassia',185.4788,4.4736,9.7,'Vir','','61'],
-['M62','Ammasso globulare',255.3025,-30.1121,6.5,'Oph','','62'],
-['M63','Galassia',198.9555,42.0293,8.6,'CVn','Galassia Girasole','63'],
-['M64','Galassia',194.1821,21.6827,8.5,'Com','Occhio Nero','64'],
-['M65','Galassia',169.7332,13.0923,9.3,'Leo','','65'],
-['M66','Galassia',170.0625,12.9915,8.9,'Leo','','66'],
-['M67','Ammasso aperto',132.8500,11.8000,6.1,'Cnc','','67'],
-['M68','Ammasso globulare',189.8671,-26.7437,7.8,'Hya','','68'],
-['M69','Ammasso globulare',277.8464,-32.3481,7.6,'Sgr','','69'],
-['M70','Ammasso globulare',280.8034,-32.2920,7.9,'Sgr','','70'],
-['M71','Ammasso globulare',298.4439,18.7792,8.2,'Sge','','71'],
-['M72','Ammasso globulare',313.3654,-12.5372,9.3,'Aqr','','72'],
-['M73','Ammasso aperto',305.0000,-12.6333,9.0,'Aqr','','73'],
-['M74','Galassia',24.1741,15.7837,9.4,'Psc','','74'],
-['M75','Ammasso globulare',301.5201,-21.9221,8.5,'Sgr','','75'],
-['M76','Nebulosa planetaria',25.5822,51.5753,10.1,'Per','Piccola Manubrio','76'],
-['M77','Galassia',40.6697,-0.0133,8.9,'Cet','','77'],
-['M78','Nebulosa a riflessione',86.6908,0.0792,8.3,'Ori','','78'],
-['M79','Ammasso globulare',81.0441,-24.5242,7.7,'Lep','','79'],
-['M80','Ammasso globulare',244.2600,-22.9756,7.3,'Sco','','80'],
-['M81','Galassia',148.8882,69.0653,6.9,'UMa','Galassia di Bode','81'],
-['M82','Galassia',148.9685,69.6797,8.4,'UMa','Galassia Sigaro','82'],
-['M83','Galassia',204.2538,-29.8658,7.5,'Hya','Girandola del Sud','83'],
-['M84','Galassia',186.2656,12.8870,9.1,'Vir','','84'],
-['M85','Galassia',186.3502,18.1911,9.1,'Com','','85'],
-['M86','Galassia',186.5492,12.9462,8.9,'Vir','','86'],
-['M87','Galassia',187.7059,12.3911,8.6,'Vir','','87'],
-['M88','Galassia',187.9966,14.4204,9.6,'Com','','88'],
-['M89','Galassia',188.9158,12.5563,9.8,'Vir','','89'],
-['M90','Galassia',189.2076,13.1629,9.5,'Vir','','90'],
-['M91','Galassia',188.8601,14.4963,10.2,'Com','','91'],
-['M92','Ammasso globulare',259.2809,43.1359,6.4,'Her','','92'],
-['M93','Ammasso aperto',114.1500,-23.8667,6.2,'Pup','','93'],
-['M94','Galassia',192.7210,41.1204,8.2,'CVn','','94'],
-['M95','Galassia',160.9904,11.7037,9.7,'Leo','','95'],
-['M96','Galassia',161.6920,11.8199,9.2,'Leo','','96'],
-['M97','Nebulosa planetaria',168.6989,55.0190,9.9,'UMa','Nebulosa Gufo','97'],
-['M98','Galassia',183.4513,14.9003,10.1,'Com','','98'],
-['M99','Galassia',184.7066,14.4165,9.9,'Com','','99'],
-['M100','Galassia',185.7286,15.8221,9.3,'Com','','100'],
-['M101','Galassia',210.8022,54.3490,7.9,'UMa','Galassia Girandola','101'],
-['M102','Galassia',226.6200,55.7633,9.9,'Dra','','102'],
-['M103','Ammasso aperto',23.3417,60.6583,7.4,'Cas','','103'],
-['M104','Galassia',189.9976,-11.6231,8.0,'Vir','Galassia Sombrero','104'],
-['M105','Galassia',161.9566,12.5817,9.3,'Leo','','105'],
-['M106','Galassia',184.7395,47.3037,8.4,'CVn','','106'],
-['M107','Ammasso globulare',248.1326,-13.0537,7.9,'Oph','','107'],
-['M108','Galassia',167.8791,55.6741,10.0,'UMa','','108'],
-['M109','Galassia',179.3998,53.3747,9.8,'UMa','','109'],
-['M110','Galassia',10.0919,41.6853,8.9,'And','','110'],
-['NGC253','Galassia',11.8880,-25.2882,7.1,'Scl','Galassia dello Scultore',''],
-['NGC281','Nebulosa a emissione',13.0567,56.6228,7.4,'Cas','Nebulosa Pacman',''],
-['NGC869','Ammasso aperto',34.7417,57.1333,3.7,'Per','Ammasso Doppio h',''],
-['NGC884','Ammasso aperto',35.5625,57.1417,3.8,'Per','Ammasso Doppio chi',''],
-['NGC891','Galassia',35.6392,42.3492,9.9,'And','',''],
-['NGC1023','Galassia',40.1000,39.0633,9.5,'Per','',''],
-['NGC1499','Nebulosa a emissione',60.8000,36.3667,6.0,'Per','Nebulosa California',''],
-['NGC2237','Nebulosa a emissione',97.9167,5.0500,6.0,'Mon','Nebulosa Rosetta',''],
-['NGC2264','Ammasso con nebulosa',100.2417,9.8833,3.9,'Mon','Albero di Natale',''],
-['NGC2403','Galassia',114.2138,65.6026,8.4,'Cam','',''],
-['NGC4565','Galassia',189.0866,25.9876,9.6,'Com','Galassia Ago',''],
-['NGC6543','Nebulosa planetaria',269.6392,66.6328,8.1,'Dra','Occhio di Gatto',''],
-['NGC6822','Galassia',296.2342,-14.8032,8.8,'Sgr','Galassia di Barnard',''],
-['NGC7000','Nebulosa a emissione',314.7500,44.3167,4.0,'Cyg','Nebulosa Nord America',''],
-['NGC7293','Nebulosa planetaria',337.4108,-20.8372,7.3,'Aqr','Nebulosa Elica',''],
-['NGC7331','Galassia',339.2671,34.4158,9.5,'Peg','',''],
-['NGC7635','Regione HII',350.2042,61.2067,10.0,'Cas','Nebulosa Bolla',''],
-['NGC7789','Ammasso aperto',359.0542,56.7333,6.7,'Cas','Rosa di Caroline',''],
-['IC405','Nebulosa a emissione',79.0708,34.2733,6.0,'Aur','Stella Fiammeggiante',''],
-['IC434','Nebulosa a emissione',85.2458,-2.4589,11.0,'Ori','Testa di Cavallo',''],
-['IC1396','Nebulosa a emissione',324.5500,57.5000,3.5,'Cep','Proboscide di Elefante',''],
-['IC1805','Nebulosa a emissione',38.1833,61.4500,6.5,'Cas','Nebulosa Cuore',''],
-['IC1848','Nebulosa a emissione',42.7500,60.4000,6.5,'Cas','Nebulosa Anima',''],
-['IC342','Galassia',56.7021,68.0961,9.1,'Cam','',''],
-['IC5070','Nebulosa a emissione',312.7500,44.3667,3.5,'Cyg','Nebulosa Pellicano',''],
-['IC5146','Nebulosa a emissione',328.4000,47.2667,7.2,'Cyg','Nebulosa Bozzolo','']
+["M1","Nebulosa planetaria",83.6331,22.0145,8.4,"Tau","Nebulosa Granchio","1"],
+["M2","Ammasso globulare",323.3625,-0.8233,6.3,"Aqr","","2"],
+["M3","Ammasso globulare",205.5484,28.3773,6.2,"CVn","","3"],
+["M4","Ammasso globulare",245.8967,-26.5258,5.6,"Sco","","4"],
+["M5","Ammasso globulare",229.6384,2.0810,5.6,"Ser","","5"],
+["M6","Ammasso aperto",265.0833,-32.2500,4.2,"Sco","Ammasso Farfalla","6"],
+["M7","Ammasso aperto",268.4583,-34.8167,3.3,"Sco","Ammasso Tolomeo","7"],
+["M8","Nebulosa a emissione",270.9042,-24.3867,6.0,"Sgr","Nebulosa Laguna","8"],
+["M9","Ammasso globulare",259.7992,-18.5161,7.7,"Oph","","9"],
+["M10","Ammasso globulare",254.2875,-4.0992,6.6,"Oph","","10"],
+["M11","Ammasso aperto",282.7662,-6.2700,5.8,"Sct","Ammasso Anitra","11"],
+["M12","Ammasso globulare",251.8092,-1.9481,6.7,"Oph","","12"],
+["M13","Ammasso globulare",250.4235,36.4613,5.8,"Her","Ammasso di Ercole","13"],
+["M14","Ammasso globulare",264.4004,-3.2458,7.6,"Oph","","14"],
+["M15","Ammasso globulare",322.4929,12.1670,6.2,"Peg","","15"],
+["M16","Ammasso con nebulosa",274.7000,-13.7833,6.0,"Ser","Nebulosa Aquila","16"],
+["M17","Nebulosa a emissione",275.1962,-16.1714,6.0,"Sgr","Nebulosa Omega","17"],
+["M18","Ammasso aperto",276.1500,-17.1333,6.9,"Sgr","","18"],
+["M19","Ammasso globulare",255.6571,-26.2679,6.8,"Oph","","19"],
+["M20","Regione HII",270.6750,-22.9717,6.3,"Sgr","Nebulosa Trifida","20"],
+["M21","Ammasso aperto",271.0583,-22.5000,6.5,"Sgr","","21"],
+["M22","Ammasso globulare",279.0997,-23.9047,5.1,"Sgr","","22"],
+["M23","Ammasso aperto",269.2083,-19.0167,5.5,"Sgr","","23"],
+["M24","Ammasso aperto",274.2000,-18.5500,4.6,"Sgr","Nube del Sagittario","24"],
+["M25","Ammasso aperto",277.9083,-19.2500,4.6,"Sgr","","25"],
+["M26","Ammasso aperto",281.3250,-9.3833,8.0,"Sct","","26"],
+["M27","Nebulosa planetaria",299.9017,22.7211,7.4,"Vul","Nebulosa Manubrio","27"],
+["M28","Ammasso globulare",276.1371,-24.8698,6.8,"Sgr","","28"],
+["M29","Ammasso aperto",305.9833,38.5167,7.1,"Cyg","","29"],
+["M30","Ammasso globulare",325.0921,-23.1799,7.2,"Cap","","30"],
+["M31","Galassia",10.6847,41.2692,3.4,"And","Galassia di Andromeda","31"],
+["M32","Galassia",10.6743,40.8652,8.1,"And","","32"],
+["M33","Galassia",23.4621,30.6602,5.7,"Tri","Galassia del Triangolo","33"],
+["M34","Ammasso aperto",40.5250,42.7167,5.2,"Per","","34"],
+["M35","Ammasso aperto",92.2750,24.3333,5.1,"Gem","","35"],
+["M36","Ammasso aperto",84.0833,34.1333,6.0,"Aur","","36"],
+["M37","Ammasso aperto",88.0750,32.5500,5.6,"Aur","","37"],
+["M38","Ammasso aperto",82.1750,35.8500,6.4,"Aur","","38"],
+["M39","Ammasso aperto",322.9250,48.4333,4.6,"Cyg","","39"],
+["M40","Stella doppia",185.5500,58.1833,8.4,"UMa","","40"],
+["M41","Ammasso aperto",101.5000,-20.7500,4.5,"CMa","","41"],
+["M42","Nebulosa a emissione",83.8221,-5.3911,4.0,"Ori","Grande nebulosa di Orione","42"],
+["M43","Regione HII",83.8792,-5.2750,9.0,"Ori","Nebulosa De Mairan","43"],
+["M44","Ammasso aperto",130.1000,19.6667,3.1,"Cnc","Ammasso Presepe","44"],
+["M45","Ammasso aperto",56.7500,24.1167,1.6,"Tau","Pleiadi","45"],
+["M46","Ammasso aperto",112.2250,-14.8167,6.1,"Pup","","46"],
+["M47","Ammasso aperto",114.1500,-14.4833,4.4,"Pup","","47"],
+["M48","Ammasso aperto",123.4250,-5.7500,5.5,"Hya","","48"],
+["M49","Galassia",187.4449,8.0004,8.4,"Vir","","49"],
+["M50","Ammasso aperto",105.6750,-8.3833,5.9,"Mon","","50"],
+["M51","Galassia",202.4696,47.1952,8.4,"CVn","Galassia Vortice","51"],
+["M52","Ammasso aperto",350.1750,61.5833,6.9,"Cas","","52"],
+["M53","Ammasso globulare",198.2302,18.1681,7.7,"Com","","53"],
+["M54","Ammasso globulare",283.7639,-30.4800,7.7,"Sgr","","54"],
+["M55","Ammasso globulare",294.9987,-30.9647,6.3,"Sgr","","55"],
+["M56","Ammasso globulare",289.1483,30.1833,8.3,"Lyr","","56"],
+["M57","Nebulosa planetaria",283.3962,33.0292,8.8,"Lyr","Nebulosa Anello","57"],
+["M58","Galassia",189.4312,11.8181,9.7,"Vir","","58"],
+["M59","Galassia",190.5096,11.6469,9.6,"Vir","","59"],
+["M60","Galassia",190.9167,11.5528,8.8,"Vir","","60"],
+["M61","Galassia",185.4788,4.4736,9.7,"Vir","","61"],
+["M62","Ammasso globulare",255.3025,-30.1121,6.5,"Oph","","62"],
+["M63","Galassia",198.9555,42.0293,8.6,"CVn","Galassia Girasole","63"],
+["M64","Galassia",194.1821,21.6827,8.5,"Com","Occhio Nero","64"],
+["M65","Galassia",169.7332,13.0923,9.3,"Leo","","65"],
+["M66","Galassia",170.0625,12.9915,8.9,"Leo","","66"],
+["M67","Ammasso aperto",132.8500,11.8000,6.1,"Cnc","","67"],
+["M68","Ammasso globulare",189.8671,-26.7437,7.8,"Hya","","68"],
+["M69","Ammasso globulare",277.8464,-32.3481,7.6,"Sgr","","69"],
+["M70","Ammasso globulare",280.8034,-32.2920,7.9,"Sgr","","70"],
+["M71","Ammasso globulare",298.4439,18.7792,8.2,"Sge","","71"],
+["M72","Ammasso globulare",313.3654,-12.5372,9.3,"Aqr","","72"],
+["M73","Ammasso aperto",305.0000,-12.6333,9.0,"Aqr","","73"],
+["M74","Galassia",24.1741,15.7837,9.4,"Psc","","74"],
+["M75","Ammasso globulare",301.5201,-21.9221,8.5,"Sgr","","75"],
+["M76","Nebulosa planetaria",25.5822,51.5753,10.1,"Per","Piccola Manubrio","76"],
+["M77","Galassia",40.6697,-0.0133,8.9,"Cet","","77"],
+["M78","Nebulosa a riflessione",86.6908,0.0792,8.3,"Ori","","78"],
+["M79","Ammasso globulare",81.0441,-24.5242,7.7,"Lep","","79"],
+["M80","Ammasso globulare",244.2600,-22.9756,7.3,"Sco","","80"],
+["M81","Galassia",148.8882,69.0653,6.9,"UMa","Galassia di Bode","81"],
+["M82","Galassia",148.9685,69.6797,8.4,"UMa","Galassia Sigaro","82"],
+["M83","Galassia",204.2538,-29.8658,7.5,"Hya","Girandola del Sud","83"],
+["M84","Galassia",186.2656,12.8870,9.1,"Vir","","84"],
+["M85","Galassia",186.3502,18.1911,9.1,"Com","","85"],
+["M86","Galassia",186.5492,12.9462,8.9,"Vir","","86"],
+["M87","Galassia",187.7059,12.3911,8.6,"Vir","","87"],
+["M88","Galassia",187.9966,14.4204,9.6,"Com","","88"],
+["M89","Galassia",188.9158,12.5563,9.8,"Vir","","89"],
+["M90","Galassia",189.2076,13.1629,9.5,"Vir","","90"],
+["M91","Galassia",188.8601,14.4963,10.2,"Com","","91"],
+["M92","Ammasso globulare",259.2809,43.1359,6.4,"Her","","92"],
+["M93","Ammasso aperto",114.1500,-23.8667,6.2,"Pup","","93"],
+["M94","Galassia",192.7210,41.1204,8.2,"CVn","","94"],
+["M95","Galassia",160.9904,11.7037,9.7,"Leo","","95"],
+["M96","Galassia",161.6920,11.8199,9.2,"Leo","","96"],
+["M97","Nebulosa planetaria",168.6989,55.0190,9.9,"UMa","Nebulosa Gufo","97"],
+["M98","Galassia",183.4513,14.9003,10.1,"Com","","98"],
+["M99","Galassia",184.7066,14.4165,9.9,"Com","","99"],
+["M100","Galassia",185.7286,15.8221,9.3,"Com","","100"],
+["M101","Galassia",210.8022,54.3490,7.9,"UMa","Galassia Girandola","101"],
+["M102","Galassia",226.6200,55.7633,9.9,"Dra","","102"],
+["M103","Ammasso aperto",23.3417,60.6583,7.4,"Cas","","103"],
+["M104","Galassia",189.9976,-11.6231,8.0,"Vir","Galassia Sombrero","104"],
+["M105","Galassia",161.9566,12.5817,9.3,"Leo","","105"],
+["M106","Galassia",184.7395,47.3037,8.4,"CVn","","106"],
+["M107","Ammasso globulare",248.1326,-13.0537,7.9,"Oph","","107"],
+["M108","Galassia",167.8791,55.6741,10.0,"UMa","","108"],
+["M109","Galassia",179.3998,53.3747,9.8,"UMa","","109"],
+["M110","Galassia",10.0919,41.6853,8.9,"And","","110"],
+["NGC253","Galassia",11.8880,-25.2882,7.1,"Scl","Galassia dello Scultore",""],
+["NGC281","Nebulosa a emissione",13.0567,56.6228,7.4,"Cas","Nebulosa Pacman",""],
+["NGC869","Ammasso aperto",34.7417,57.1333,3.7,"Per","Ammasso Doppio h",""],
+["NGC884","Ammasso aperto",35.5625,57.1417,3.8,"Per","Ammasso Doppio chi",""],
+["NGC891","Galassia",35.6392,42.3492,9.9,"And","",""],
+["NGC1023","Galassia",40.1000,39.0633,9.5,"Per","",""],
+["NGC1499","Nebulosa a emissione",60.8000,36.3667,6.0,"Per","Nebulosa California",""],
+["NGC2237","Nebulosa a emissione",97.9167,5.0500,6.0,"Mon","Nebulosa Rosetta",""],
+["NGC2264","Ammasso con nebulosa",100.2417,9.8833,3.9,"Mon","Albero di Natale",""],
+["NGC2403","Galassia",114.2138,65.6026,8.4,"Cam","",""],
+["NGC4565","Galassia",189.0866,25.9876,9.6,"Com","Galassia Ago",""],
+["NGC6543","Nebulosa planetaria",269.6392,66.6328,8.1,"Dra","Occhio di Gatto",""],
+["NGC6822","Galassia",296.2342,-14.8032,8.8,"Sgr","Galassia di Barnard",""],
+["NGC7000","Nebulosa a emissione",314.7500,44.3167,4.0,"Cyg","Nebulosa Nord America",""],
+["NGC7293","Nebulosa planetaria",337.4108,-20.8372,7.3,"Aqr","Nebulosa Elica",""],
+["NGC7331","Galassia",339.2671,34.4158,9.5,"Peg","",""],
+["NGC7635","Regione HII",350.2042,61.2067,10.0,"Cas","Nebulosa Bolla",""],
+["NGC7789","Ammasso aperto",359.0542,56.7333,6.7,"Cas","Rosa di Caroline",""],
+["IC342","Galassia",56.7021,68.0961,9.1,"Cam","",""],
+["IC405","Nebulosa a emissione",79.0708,34.2733,6.0,"Aur","Stella Fiammeggiante",""],
+["IC434","Nebulosa a emissione",85.2458,-2.4589,11.0,"Ori","Testa di Cavallo",""],
+["IC1396","Nebulosa a emissione",324.5500,57.5000,3.5,"Cep","Proboscide di Elefante",""],
+["IC1805","Nebulosa a emissione",38.1833,61.4500,6.5,"Cas","Nebulosa Cuore",""],
+["IC1848","Nebulosa a emissione",42.7500,60.4000,6.5,"Cas","Nebulosa Anima",""],
+["IC5070","Nebulosa a emissione",312.7500,44.3667,3.5,"Cyg","Nebulosa Pellicano",""],
+["IC5146","Nebulosa a emissione",328.4000,47.2667,7.2,"Cyg","Nebulosa Bozzolo",""],
+["Sh2-6","Nebulosa a emissione",261.2833,-37.1167,9.0,"Sco","Nebulosa Scarabeo",""],
+["Sh2-101","Nebulosa a emissione",299.9833,35.2833,9.0,"Cyg","Nebulosa Tulipano",""],
+["Sh2-125","Nebulosa a emissione",324.7167,47.2333,9.0,"Cyg","Nebulosa Bozzolo",""],
+["Sh2-140","Nebulosa a emissione",332.5000,63.1667,9.0,"Cep","Cygnus Wall",""],
+["Sh2-155","Nebulosa a emissione",344.4167,62.6333,9.0,"Cep","Nebulosa Grotta",""],
+["Sh2-162","Nebulosa a emissione",308.5833,60.1833,6.0,"Cep","Nebulosa California",""],
+["Sh2-171","Nebulosa a emissione",0.7500,67.9833,9.0,"Cas","Nebulosa Crescente",""],
+["Sh2-220","Nebulosa a emissione",37.1000,60.4333,9.0,"Cas","Nebulosa Testa di Strega",""],
+["Sh2-229","Nebulosa a emissione",79.0708,34.2733,6.0,"Aur","Nebulosa Stella Fiammeggiante",""],
+["Sh2-240","Nebulosa a emissione",87.5000,28.5000,9.0,"Tau","Nebulosa Medusa",""],
+["Sh2-244","Nebulosa a emissione",93.4833,-7.1167,9.0,"Ori","Piccola Tromba",""],
+["Sh2-248","Nebulosa a emissione",97.9667,1.0000,9.0,"Mon","Nebulosa Testa di Scimmia",""],
+["Sh2-276","Nebulosa a emissione",83.0000,-3.5000,9.0,"Ori","Anello di Barnard",""],
+["Sh2-281","Nebulosa a emissione",91.2000,6.2500,7.4,"Mon","Nebulosa Pacman",""],
+["Sh2-298","Nebulosa a emissione",106.2167,-8.3500,9.0,"Mon","Nebulosa Insetto",""]
 ];
 
 const state = {
@@ -736,38 +752,157 @@ function inputRicerca(){
   }
 }
 
+/* Carica un catalogo esterno. Riconosce due formati:
+   - OpenNGC (NGC.csv): intestazione con Name, Type, RA, Dec, Const, CommonName, M
+   - formato dell app: nome|tipo|ra|dec|magnitudine|costellazione|nome comune|messier
+   Il file viene letto dal computer dell utente: nessuna richiesta di rete. */
 function leggiFileCatalogo(file){
   if(!file) return;
-  const info = document.getElementById('catalogStatus');
-  if(info) info.textContent = 'Leggo ' + file.name + '...';
+  const info = document.getElementById("catalogStatus");
+  if(info) info.textContent = "Leggo " + file.name + " (" + (file.size/1048576).toFixed(2) + " MB)...";
+  if(file.size < 2000){
+    if(info) info.textContent = "Il file " + file.name + " e\u2019 troppo piccolo (" + file.size + " byte): non e\u2019 un catalogo.";
+    toast("File troppo piccolo");
+    return;
+  }
   const reader = new FileReader();
   reader.onload = function(){
     try{
       const testo = String(reader.result);
-      const righe = testo.split(/\r?\n/);
       let aggiunti = 0;
-      righe.forEach(function(r){
-        const p = r.trim().split('|');
-        if(p.length < 4) return;
-        const ra = parseFloat(p[2]), dec = parseFloat(p[3]);
-        if(!isFinite(ra) || !isFinite(dec)) return;
-        const genere = p[1] || 'Oggetto';
-        const mag = parseFloat(p[4]);
-        catalog.push({ name:p[0], id:p[0], messier:p[7] || '', type:'deep', kind:genere,
-          color:colorePerTipo(genere), mag:isFinite(mag) ? mag : 9, ra:ra, dec:dec,
-          constellation:p[5] || '', common:p[6] || '', source:'file locale' });
-        aggiunti++;
-      });
-      if(info) info.textContent = 'Aggiunti ' + aggiunti + ' oggetti da ' + file.name +
-        '. Totale: ' + catalog.length + '.';
-      toast(aggiunti + ' oggetti aggiunti');
+      const primaRiga = testo.slice(0, 300).split(/\r?\n/)[0] || "";
+      /* riconosco il formato dall intestazione */
+      const sembraOpenngc = /name/i.test(primaRiga) && /ra/i.test(primaRiga) && /dec/i.test(primaRiga);
+      if(sembraOpenngc){
+        aggiunti = importaOpenngc(testo);
+      } else {
+        aggiunti = importaFormatoApp(testo);
+      }
+      if(!aggiunti){
+        throw new Error("nessun oggetto riconosciuto. Prima riga letta: " + primaRiga.slice(0, 80));
+      }
+      if(info) info.textContent = "Aggiunti " + aggiunti + " oggetti da " + file.name +
+        ". Totale in catalogo: " + catalog.length + ".";
+      toast(aggiunti + " oggetti aggiunti");
       compute();
     }catch(e){
-      if(info) info.textContent = 'File non riconosciuto: ' + e.message;
-      toast('File non riconosciuto');
+      if(info) info.textContent = "File non riconosciuto: " + e.message;
+      toast("File non riconosciuto");
     }
   };
-  reader.readAsText(file, 'UTF-8');
+  reader.onerror = function(){
+    if(info) info.textContent = "Non riesco a leggere il file. Se e\u2019 in cloud o su una cartella di rete, copialo prima in locale.";
+  };
+  reader.readAsText(file, "UTF-8");
+}
+
+/* converte le coordinate sessagesimali in gradi decimali */
+function raDaSessagesimale(v){
+  if(v === undefined || v === null || v === "") return null;
+  const s = String(v).trim().replace(",", ".");
+  if(s.indexOf(":") < 0){ const n = parseFloat(s); return isFinite(n) ? n : null; }
+  const p = s.split(":");
+  if(p.length < 2) return null;
+  const h = parseFloat(p[0]), m = parseFloat(p[1]), sec = parseFloat(p[2] || "0");
+  if(!isFinite(h) || !isFinite(m)) return null;
+  return (h + m/60 + (sec||0)/3600) * 15;
+}
+function decDaSessagesimale(v){
+  if(v === undefined || v === null || v === "") return null;
+  const s = String(v).trim().replace(",", ".");
+  if(s.indexOf(":") < 0){ const n = parseFloat(s); return isFinite(n) ? n : null; }
+  const negativo = s.charAt(0) === "-";
+  const p = s.replace(/^[+-]/, "").split(":");
+  if(p.length < 2) return null;
+  const d = parseFloat(p[0]), m = parseFloat(p[1]), sec = parseFloat(p[2] || "0");
+  if(!isFinite(d) || !isFinite(m)) return null;
+  const val = d + m/60 + (sec||0)/3600;
+  return negativo ? 0 - val : val;
+}
+
+/* importa un file nel formato di OpenNGC */
+function importaOpenngc(testo){
+  const righe = testo.split(/\r?\n/);
+  if(righe.length < 2) return 0;
+  /* l intestazione: separatore virgola */
+  const intestazione = righe[0].split(",").map(function(h){ return h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""); });
+  const pos = function(nomi){
+    for(let i=0;i<nomi.length;i++){ const k = intestazione.indexOf(nomi[i]); if(k > -1) return k; }
+    return -1;
+  };
+  const iNome = pos(["name"]), iRa = pos(["ra"]), iDec = pos(["dec"]);
+  const iTipo = pos(["type"]), iMag = pos(["vmag","bmag","mag"]), iM = pos(["m"]), iComune = pos(["commonname"]);
+  if(iNome < 0 || iRa < 0 || iDec < 0) return 0;
+  /* lettura riga per riga, con gestione delle virgolette */
+  let aggiunti = 0;
+  for(let r = 1; r < righe.length; r++){
+    const riga = righe[r];
+    if(!riga.trim()) continue;
+    const campi = []; let campo = "", dentro = false;
+    for(let c = 0; c < riga.length; c++){
+      const ch = riga[c];
+      if(dentro){
+        if(ch === '"'){ if(riga[c+1] === '"'){ campo += '"'; c++; } else dentro = false; }
+        else campo += ch;
+      } else if(ch === '"'){ dentro = true; }
+      else if(ch === ","){ campi.push(campo); campo = ""; }
+      else campo += ch;
+    }
+    campi.push(campo);
+    const nome = (campi[iNome] || "").trim();
+    if(!nome) continue;
+    const ra = raDaSessagesimale(campi[iRa]);
+    const dec = decDaSessagesimale(campi[iDec]);
+    if(ra === null || dec === null) continue;
+    const tipoGrezzo = iTipo > -1 ? (campi[iTipo] || "").trim() : "";
+    const genere = tipoDaOpenngc(tipoGrezzo);
+    const messier = iM > -1 ? (campi[iM] || "").trim() : "";
+    const magGrezza = iMag > -1 ? String(campi[iMag] || "").replace(",", ".") : "";
+    const mag = parseFloat(magGrezza);
+    catalog.push({
+      name: nome, id: nome, messier: messier, type: "deep", kind: genere,
+      color: colorePerTipo(genere),
+      mag: isFinite(mag) ? mag : 11,
+      ra: ra, dec: dec,
+      constellation: "",
+      common: iComune > -1 ? (campi[iComune] || "").trim() : "",
+      source: "OpenNGC (CC-BY-SA 4.0)"
+    });
+    aggiunti++;
+  }
+  return aggiunti;
+}
+
+/* traduce i tipi di OpenNGC in etichette leggibili */
+function tipoDaOpenngc(t){
+  const mappa = {
+    G:"Galassia", GPair:"Coppia di galassie", GTrpl:"Terzetto di galassie", GGroup:"Gruppo di galassie",
+    PN:"Nebulosa planetaria", HII:"Regione HII", DrkN:"Nebulosa oscura", EmN:"Nebulosa a emissione",
+    Neb:"Nebulosa", RfN:"Nebulosa a riflessione", SNR:"Resto di supernova", "Cl+N":"Ammasso con nebulosa",
+    GCl:"Ammasso globulare", OCl:"Ammasso aperto", "**":"Stella doppia", "\u002A":"Stella",
+    "\u002A\u002A":"Stella doppia", "\u002AAss":"Associazione stellare", Nova:"Nova", NonEx:"Inesistente",
+    Dup:"Duplicato", Other:"Altro"
+  };
+  return mappa[t] || "Oggetto";
+}
+
+/* importa un file nel formato dell app */
+function importaFormatoApp(testo){
+  const righe = testo.split(/\r?\n/);
+  let aggiunti = 0;
+  for(let i = 0; i < righe.length; i++){
+    const p = righe[i].trim().split("|");
+    if(p.length < 4) continue;
+    const ra = parseFloat(p[2]), dec = parseFloat(p[3]);
+    if(!isFinite(ra) || !isFinite(dec)) continue;
+    const genere = p[1] || "Oggetto";
+    const mag = parseFloat(p[4]);
+    catalog.push({ name:p[0], id:p[0], messier:p[7] || "", type:"deep", kind:genere,
+      color:colorePerTipo(genere), mag:isFinite(mag) ? mag : 9, ra:ra, dec:dec,
+      constellation:p[5] || "", common:p[6] || "", source:"file locale" });
+    aggiunti++;
+  }
+  return aggiunti;
 }
 
 /* Porta la mappa su un punto e, se necessario, la disegna per la prima volta. */
@@ -832,6 +967,14 @@ function useMyPosition(){
 }
 
 function collegaEventi(){
+  /* ---- caricamento di un catalogo esterno ---- */
+  const campoFile = document.getElementById('catalogFile');
+  if(campoFile) campoFile.onchange = function(e){
+    const f = e.target.files && e.target.files[0];
+    if(f) leggiFileCatalogo(f);
+    e.target.value = '';
+  };
+
   const geo = document.getElementById('geoBtn');
   if(geo) geo.onclick = useMyPosition;
 
