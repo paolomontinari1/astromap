@@ -181,7 +181,7 @@ const DEEP = [
 
 const state = {
   lat:41.902782, lon:12.496366, filter:'all', selected:null, positions:[],
-  place:'Roma', deferred:null, map:null, mapMarker:null, mapRays:[], projectionLayer:null,
+  place:'Roma', nomeLuogo:'', segnoLuogo:null, deferred:null, map:null, mapMarker:null, mapRays:[], projectionLayer:null,
   showProjection:true, zoom:17
 };
 
@@ -421,6 +421,7 @@ function drawMap(){
       $('#lat').value = e.latlng.lat.toFixed(6);
       $('#lon').value = e.latlng.lng.toFixed(6);
       state.place = 'punto selezionato';
+      state.nomeLuogo = 'punto selezionato';
       compute();
     });
   }
@@ -453,8 +454,14 @@ function drawMap(){
   }).addTo(state.projectionLayer);
 
   const pianeti = ['moon','mercury','venus','mars','jupiter','saturn','uranus','neptune'];
+  const selezionato = state.selected;
   const mostrati = state.positions.filter(function(o){
-    return o.alt > 0 && (o.name === 'Luna' || pianeti.indexOf(o.body) > -1);
+    if(o.alt <= 0) return false;
+    if(o.name === 'Luna') return true;
+    if(pianeti.indexOf(o.body) > -1) return true;
+    /* l'oggetto selezionato viene sempre disegnato, anche se \u00e8 deep-sky */
+    if(selezionato && o.name === selezionato.name) return true;
+    return false;
   });
   mostrati.forEach(function(o){
     const isSel = state.selected && state.selected.name === o.name;
@@ -597,30 +604,64 @@ function leggiFileCatalogo(file){
   reader.readAsText(file, 'UTF-8');
 }
 
+/* Porta la mappa su un punto e, se necessario, la disegna per la prima volta. */
+function centraMappa(lat, lon, zoom){
+  try{
+    if(!state.map){
+      /* la mappa non esiste ancora: la disegno, poi la centro */
+      drawMap();
+    }
+    if(state.map){
+      state.map.invalidateSize();
+      state.map.setView([lat, lon], zoom || 16);
+      /* contrassegno del luogo cercato */
+      if(state.segnoLuogo){ state.map.removeLayer(state.segnoLuogo); }
+      const nome = state.nomeLuogo || state.place || 'luogo';
+      state.segnoLuogo = L.marker([lat, lon], {
+        icon: L.divIcon({ className:'luogo-tag', html:nome, iconSize:[0,0], iconAnchor:[0,26] })
+      }).addTo(state.map);
+    }
+  }catch(e){ console.warn('centratura mappa', e); }
+}
+/* Apre la scheda della mappa, cosi\u2019 il risultato \u00e8 visibile subito. */
+function mostraSchedaMappa(){
+  try{
+    const tab = document.querySelector('.tab[data-view=\'map\']');
+    if(tab) tab.click();
+  }catch(e){ console.warn('scheda mappa', e); }
+}
 function geocode(){
   const q = $('#address').value.trim();
   if(!q) return;
+  toast('Cerco l\u2019indirizzo...');
   fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q),
         { headers:{ 'Accept-Language':'it' } })
     .then(function(r){ return r.json(); })
     .then(function(a){
       if(!a.length) throw new Error('nessun risultato');
-      $('#lat').value = parseFloat(a[0].lat).toFixed(6);
-      $('#lon').value = parseFloat(a[0].lon).toFixed(6);
-      state.place = a[0].display_name.split(',')[0];
+      const lat = parseFloat(a[0].lat), lon = parseFloat(a[0].lon);
+      $('#lat').value = lat.toFixed(6);
+      $('#lon').value = lon.toFixed(6);
+      state.place = String(a[0].display_name || '').split(',')[0] || q;
+      state.nomeLuogo = String(a[0].display_name || q);
       compute();
-      if(state.map) state.map.setView([parseFloat(a[0].lat), parseFloat(a[0].lon)], 15);
+      centraMappa(lat, lon, 16);
+      mostraSchedaMappa();
+      toast(state.place + ' \u00B7 mappa aggiornata');
     })
-    .catch(function(){ toast('Localit\u00E0 non trovata'); });
+    .catch(function(){ toast('Localit\u00E0 non trovata: prova con pi\u00F9 dettagli'); });
 }
 function useMyPosition(){
   if(!navigator.geolocation){ toast('Geolocalizzazione non supportata'); return; }
   navigator.geolocation.getCurrentPosition(function(p){
-    $('#lat').value = p.coords.latitude.toFixed(6);
-    $('#lon').value = p.coords.longitude.toFixed(6);
+    const lat = p.coords.latitude, lon = p.coords.longitude;
+    $('#lat').value = lat.toFixed(6);
+    $('#lon').value = lon.toFixed(6);
     state.place = 'la tua posizione';
+    state.nomeLuogo = 'la tua posizione';
     compute();
-    if(state.map) state.map.setView([p.coords.latitude, p.coords.longitude], 15);
+    centraMappa(lat, lon, 16);
+    mostraSchedaMappa();
   }, function(){ toast('Posizione non disponibile'); });
 }
 

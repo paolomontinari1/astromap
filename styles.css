@@ -49,3 +49,5 @@
 .suggest-row i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .suggest-row span{font-weight:700;font-size:13px}
 .suggest-row em{grid-column:2;font-style:normal;font-size:11px;color:var(--muted)}
+
+.luogo-tag{background:rgba(5,9,22,.85);border:1px solid #58d6c1;border-radius:8px;color:#bff9ef;font-size:11px;font-weight:700;padding:3px 7px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.35)}
