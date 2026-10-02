@@ -92,7 +92,7 @@
 .plan-valore{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:2px 0 12px}
 .plan-valore strong{color:#58d6c1;font-size:20px}
 .plan-valore span{color:#95a4c5;font-size:11px}
-.plan-riepilogo{display:grid;gap:6px;margin:8px 0 14px}
+.plan-riepilogo{display:grid;gap:6px;margin:8px 0 0}
 .plan-finestra{border:1px solid #253150;border-radius:11px;padding:10px}
 .plan-finestra h4{margin:0 0 6px;font-size:13px;color:#58d6c1}
 .plan-finestra p{margin:2px 0;font-size:12px;color:#dfe8ff}
