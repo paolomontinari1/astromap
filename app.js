@@ -772,14 +772,25 @@ function leggiFileCatalogo(file){
       let aggiunti = 0;
       const primaRiga = testo.slice(0, 300).split(/\r?\n/)[0] || "";
       /* riconosco il formato dall intestazione */
-      const sembraOpenngc = /name/i.test(primaRiga) && /ra/i.test(primaRiga) && /dec/i.test(primaRiga);
+      /* cerco le colonne di OpenNGC fra le prime righe, con qualunque separatore */
+      const sepRilevato = separatoreDi(testo);
+      const testaRighe = testo.split(/\r?\n/).slice(0, 20);
+      let sembraOpenngc = false;
+      for(let t = 0; t < testaRighe.length; t++){
+        const colonne = dividiRiga(testaRighe[t], sepRilevato).map(chiaveColonna);
+        if(colonne.indexOf("name") > -1 && colonne.indexOf("ra") > -1 && colonne.indexOf("dec") > -1){
+          sembraOpenngc = true; break;
+        }
+      }
       if(sembraOpenngc){
         aggiunti = importaOpenngc(testo);
       } else {
         aggiunti = importaFormatoApp(testo);
       }
       if(!aggiunti){
-        throw new Error("nessun oggetto riconosciuto. Prima riga letta: " + primaRiga.slice(0, 80));
+        throw new Error("nessun oggetto riconosciuto. Separatore rilevato: \u00AB" +
+          (separatoreDi(testo) === "\t" ? "tabulazione" : separatoreDi(testo)) +
+          "\u00BB. Prima riga: \u00AB" + primaRiga.slice(0, 100) + "\u00BB");
       }
       if(info) info.textContent = "Aggiunti " + aggiunti + " oggetti da " + file.name +
         ". Totale in catalogo: " + catalog.length + ".";
@@ -820,40 +831,94 @@ function decDaSessagesimale(v){
   return negativo ? 0 - val : val;
 }
 
-/* importa un file nel formato di OpenNGC */
+/* Riconosce il separatore del file: virgola, punto e virgola o tabulazione. */
+function separatoreDi(testo){
+  const testa = testo.slice(0, 4000);
+  const virgola = (testa.match(/,/g) || []).length;
+  const puntoVirgola = (testa.match(/;/g) || []).length;
+  const tab = (testa.match(/\t/g) || []).length;
+  if(puntoVirgola > virgola && puntoVirgola >= tab) return ";";
+  if(tab > virgola && tab > puntoVirgola) return "\t";
+  return ",";
+}
+
+/* Divide una riga rispettando le virgolette, con il separatore indicato. */
+function dividiRiga(riga, sep){
+  const campi = [];
+  let campo = "", dentro = false;
+  for(let c = 0; c < riga.length; c++){
+    const ch = riga[c];
+    if(dentro){
+      if(ch === '"'){
+        if(riga[c+1] === '"'){ campo += '"'; c++; }
+        else dentro = false;
+      } else campo += ch;
+    }
+    else if(ch === '"') dentro = true;
+    else if(ch === sep){ campi.push(campo); campo = ""; }
+    else campo += ch;
+  }
+  campi.push(campo);
+  return campi;
+}
+
+/* Normalizza il nome di una colonna: minuscole, senza spazi, trattini o punti. */
+function chiaveColonna(h){
+  return String(h || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+/* importa un file nel formato di OpenNGC, qualunque sia il separatore. */
 function importaOpenngc(testo){
   const righe = testo.split(/\r?\n/);
   if(righe.length < 2) return 0;
-  /* l intestazione: separatore virgola */
-  const intestazione = righe[0].split(",").map(function(h){ return h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""); });
+  const sep = separatoreDi(testo);
+
+  /* cerco la riga di intestazione fra le prime venti: quella con piu colonne note */
+  const note = ["name","ra","dec","type","const","vmag","bmag","mag","m","commonname","commonnames"];
+  let rigaIntestazione = -1, migliore = 0, intestazione = null;
+  for(let r = 0; r < Math.min(righe.length, 20); r++){
+    const prova = dividiRiga(righe[r], sep).map(chiaveColonna);
+    let contati = 0;
+    for(let i = 0; i < note.length; i++){ if(prova.indexOf(note[i]) > -1) contati++; }
+    if(contati > migliore){ migliore = contati; rigaIntestazione = r; intestazione = prova; }
+  }
+  if(migliore < 2 || rigaIntestazione < 0){
+    throw new Error("intestazione non trovata. Separatore usato: \u00AB" +
+      (sep === "\t" ? "tabulazione" : sep) + "\u00BB. Prime parole: \u00AB" +
+      String(righe[0] || "").slice(0, 80) + "\u00BB");
+  }
+
   const pos = function(nomi){
-    for(let i=0;i<nomi.length;i++){ const k = intestazione.indexOf(nomi[i]); if(k > -1) return k; }
+    for(let i = 0; i < nomi.length; i++){
+      const k = intestazione.indexOf(nomi[i]);
+      if(k > -1) return k;
+    }
     return -1;
   };
-  const iNome = pos(["name"]), iRa = pos(["ra"]), iDec = pos(["dec"]);
-  const iTipo = pos(["type"]), iMag = pos(["vmag","bmag","mag"]), iM = pos(["m"]), iComune = pos(["commonname"]);
-  if(iNome < 0 || iRa < 0 || iDec < 0) return 0;
-  /* lettura riga per riga, con gestione delle virgolette */
-  let aggiunti = 0;
-  for(let r = 1; r < righe.length; r++){
+  const iNome = pos(["name"]);
+  const iRa = pos(["ra","raj2000"]);
+  const iDec = pos(["dec","dej2000"]);
+  const iTipo = pos(["type","objtype"]);
+  const iMag = pos(["vmag","bmag","mag","magnitude"]);
+  const iM = pos(["m","messier"]);
+  const iComune = pos(["commonnames","commonname","common"]);
+  const iCostellazione = pos(["const","constellation"]);
+
+  if(iNome < 0 || iRa < 0 || iDec < 0){
+    throw new Error("colonne necessarie non trovate (nome, RA, Dec). Colonne lette: " +
+      intestazione.slice(0, 12).join(", "));
+  }
+
+  let aggiunti = 0, scartate = 0;
+  for(let r = rigaIntestazione + 1; r < righe.length; r++){
     const riga = righe[r];
     if(!riga.trim()) continue;
-    const campi = []; let campo = "", dentro = false;
-    for(let c = 0; c < riga.length; c++){
-      const ch = riga[c];
-      if(dentro){
-        if(ch === '"'){ if(riga[c+1] === '"'){ campo += '"'; c++; } else dentro = false; }
-        else campo += ch;
-      } else if(ch === '"'){ dentro = true; }
-      else if(ch === ","){ campi.push(campo); campo = ""; }
-      else campo += ch;
-    }
-    campi.push(campo);
+    const campi = dividiRiga(riga, sep);
     const nome = (campi[iNome] || "").trim();
     if(!nome) continue;
     const ra = raDaSessagesimale(campi[iRa]);
     const dec = decDaSessagesimale(campi[iDec]);
-    if(ra === null || dec === null) continue;
+    if(ra === null || dec === null){ scartate++; continue; }
     const tipoGrezzo = iTipo > -1 ? (campi[iTipo] || "").trim() : "";
     const genere = tipoDaOpenngc(tipoGrezzo);
     const messier = iM > -1 ? (campi[iM] || "").trim() : "";
@@ -864,14 +929,16 @@ function importaOpenngc(testo){
       color: colorePerTipo(genere),
       mag: isFinite(mag) ? mag : 11,
       ra: ra, dec: dec,
-      constellation: "",
+      constellation: iCostellazione > -1 ? (campi[iCostellazione] || "").trim() : "",
       common: iComune > -1 ? (campi[iComune] || "").trim() : "",
       source: "OpenNGC (CC-BY-SA 4.0)"
     });
     aggiunti++;
   }
+  console.log("catalogo: separatore", sep, "oggetti", aggiunti, "scartate", scartate);
   return aggiunti;
 }
+
 
 /* traduce i tipi di OpenNGC in etichette leggibili */
 function tipoDaOpenngc(t){
