@@ -1,5 +1,5 @@
-const CACHE='astromappa-v49';
-const ASSETS=['./','index.html','styles.css','app.js','manifest.webmanifest','icon.svg'];
+const CACHE='astromappa-v46';
+const ASSETS=['./','index.html','styles.css','app.js','manifest.webmanifest','icon.svg','catalogo-messier.txt'];
 
 self.addEventListener('install',function(e){
   self.skipWaiting();
@@ -12,20 +12,19 @@ self.addEventListener('activate',function(e){
   }).then(function(){return self.clients.claim()}));
 });
 
-/* Rete prima: la copia nuova arriva sempre. La cache serve solo se la rete manca. */
+/* Rete prima, cache solo se la rete non risponde: cosi' una versione nuova arriva subito. */
 self.addEventListener('fetch',function(e){
   if(e.request.method!=='GET') return;
   var url=new URL(e.request.url);
-  if(url.origin!==location.origin){
+  var isAppFile=url.origin===location.origin;
+  if(!isAppFile){
     e.respondWith(fetch(e.request).catch(function(){return caches.match(e.request)}));
     return;
   }
   e.respondWith(
     fetch(e.request).then(function(n){
-      if(n && n.ok && n.type==='basic'){
-        var copy=n.clone();
-        caches.open(CACHE).then(function(c){c.put(e.request,copy)});
-      }
+      var copy=n.clone();
+      caches.open(CACHE).then(function(c){c.put(e.request,copy)});
       return n;
     }).catch(function(){
       return caches.match(e.request).then(function(r){return r||caches.match('./')});
