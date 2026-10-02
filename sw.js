@@ -1,4 +1,4 @@
-const CACHE='astromappa-v46';
+const CACHE='astromappa-v47';
 const ASSETS=['./','index.html','styles.css','app.js','manifest.webmanifest','icon.svg','catalogo-messier.txt'];
 
 self.addEventListener('install',function(e){

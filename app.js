@@ -930,7 +930,7 @@ function disegnaRiepilogoPlan(){
   const lunaMax = lunaEl ? parseInt(lunaEl.value, 10) : 60;
   const o = state.selected;
   if(!o){
-    host.innerHTML = "<div class=\"plan-avviso\">Scegli un oggetto dalla ricerca o dall\u2019elenco: il pianificatore ti dir\u00e0 quando fotografarlo.</div>";
+    host.innerHTML = "<div class=\"plan-avviso\">Nessun oggetto selezionato. Scegli l\u2019oggetto nella scheda <strong>Mappa citt\u00e0</strong>: il pianificatore lo eredita e ti dice quando fotografarlo.</div>";
     return;
   }
   const f = planCalcolaFinestra(o, soglia);
@@ -1532,11 +1532,48 @@ function collegaSchedaPianificatore(){
   });
 }
 
+/* Accende i pulsanti delle schede. Prima non esisteva nessun gestore:
+   e\u2019 questa la ragione per cui il pulsante Pianificatore non rispondeva. */
+function accendiSchede(){
+  const pulsanti = document.querySelectorAll(".tab");
+  if(!pulsanti.length){
+    console.warn("schede: nessun pulsante trovato");
+    return;
+  }
+  for(let i = 0; i < pulsanti.length; i++){
+    const b = pulsanti[i];
+    b.onclick = function(){
+      /* aspetto la vista indicata dal pulsante */
+      const vista = b.dataset.view;
+      for(let k = 0; k < pulsanti.length; k++) pulsanti[k].classList.remove("active");
+      const viste = document.querySelectorAll(".view");
+      for(let k = 0; k < viste.length; k++) viste[k].classList.remove("active");
+      b.classList.add("active");
+      const pannello = document.getElementById(vista + "View");
+      if(pannello) pannello.classList.add("active");
+
+      if(vista === "planner"){
+        /* il pianificatore legge l\u2019oggetto scelto nella scheda mappa */
+        try { disegnaPlanCanvas(); } catch(e){ console.warn("tela pianificatore", e); }
+        try { disegnaRiepilogoPlan(); } catch(e){ console.warn("riepilogo pianificatore", e); }
+      }
+      if(vista === "map"){
+        try {
+          if(state.map){ setTimeout(function(){ state.map.invalidateSize(); }, 80); }
+        } catch(e){ console.warn("ridimensionamento mappa", e); }
+      }
+    };
+  }
+  console.log("schede accese:", pulsanti.length);
+}
+
 function avvia(){
   try { costruisciCatalogo(); } catch(e){ console.warn('catalogo', e); }
   console.log('catalogo pronto:', catalog.length, 'oggetti');
   try { initTime(); } catch(e){ console.warn('initTime', e); }
   try { collegaEventi(); } catch(e){ console.warn('eventi', e); }
+  try { accendiSchede(); } catch(e){ console.warn('schede', e); }
+  try { collegaPianificatore(); } catch(e){ console.warn('pianificatore', e); }
   try { compute(); } catch(e){ console.warn('calcolo', e); }
 }
 if(document.readyState === 'loading'){
