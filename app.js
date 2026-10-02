@@ -294,7 +294,7 @@ function compute(){
   drawAll(d);
 }
 function drawAll(d){
-  const passi = [drawHeader, drawList, drawSky, drawDetails, drawPlanner, drawMap, disegnaInfogramma];
+  const passi = [drawHeader, drawList, drawSky, drawDetails, drawPlanner, drawMap, disegnaInfogramma, drawFaseLunare];
   for(let i=0; i<passi.length; i++){
     try { passi[i](d); }
     catch(e){ console.warn('passo non riuscito:', passi[i].name, e); }
@@ -491,10 +491,18 @@ function disegnaLivelli(){
     linea.bindTooltip(o.name + ' \u00B7 azimut ' + o.az.toFixed(0) + '\u00B0 \u00B7 ' +
       o.alt.toFixed(0) + '\u00B0 di altezza', { className:'astro-tip' });
     const nome = o.name;
-    linea.on('click', function(){ scegliOggetto(nome, false); });
+    linea.on('click', function(){
+      /* clic con il mouse sull\u2019oggetto: aggiorno la scheda, l\u2019infogramma e i pannelli */
+      scegliOggetto(nome, false);
+      try { aggiornaPannelli(nome); } catch(e){ console.warn('aggiornamento dal clic', e); }
+    });
     state.mapRays.push(linea);
     const punto = L.circleMarker(fine, { radius: isSel ? 8 : 5, color:'#05201c', weight:2,
       fillColor: isSel ? '#ffc85b' : o.color, fillOpacity:1 }).addTo(state.map);
+    punto.on('click', function(){
+      scegliOggetto(nome, false);
+      try { aggiornaPannelli(nome); } catch(e){ console.warn('clic sul punto', e); }
+    });
     state.mapRays.push(punto);
     const versoNord = (o.az > 270 || o.az < 90);
     const etichetta = L.marker(fine, { interactive:false,
@@ -644,6 +652,99 @@ function disegnaInfogramma(){
     var tram = curva.tramonto ? (orarioDaMinuti(curva.tramonto.minuti) + " \u00B7 0\u00B0") : "non tramonta";
     var oraAdesso = orarioDaMinuti(minutiOra) + " \u00B7 " + o.alt.toFixed(1) + "\u00B0";
     riepilogo.innerHTML = riga("Sorge", sorge) + riga("Culmina", culm) + riga("Tramonta", tram) + riga("Adesso", oraAdesso);
+  }
+}
+
+/* Aggiorna scheda, infogramma, elenco e pianificatore per l\u2019oggetto indicato.
+   Usata dal clic sulla mappa: la mappa non viene toccata. */
+function aggiornaPannelli(nome){
+  const o = state.positions.find(function(x){ return x.name === nome; });
+  if(!o) return;
+  state.selected = o;
+  try { drawDetails(); } catch(e){ console.warn("scheda", e); }
+  try { disegnaInfogramma(); } catch(e){ console.warn("infogramma", e); }
+    try { drawFaseLunare(); } catch(e){ console.warn("fase lunare", e); }
+  try { drawFaseLunare(); } catch(e){ console.warn("fase lunare", e); }
+  try { drawList(); } catch(e){ console.warn("elenco", e); }
+  try { drawPlanner(); } catch(e){ console.warn("pianificatore", e); }
+}
+
+/* Fase lunare: et\u00e0 in giorni, frazione illuminata e nome della fase.
+   Uso l\u2019elongazione Sole-Luna e il periodo sinodico di 29,53 giorni. */
+function faseLunare(d){
+  const sole = sunRaDec(d);
+  const luna = moonRaDec(d);
+  /* distanza angolare fra Sole e Luna, in gradi */
+  const a1 = sole.ra * D2R, d1 = sole.dec * D2R;
+  const a2 = luna.ra * D2R, d2 = luna.dec * D2R;
+  let cosE = Math.sin(d1)*Math.sin(d2) + Math.cos(d1)*Math.cos(d2)*Math.cos(a1 - a2);
+  if(cosE > 1) cosE = 1; if(cosE < -1) cosE = -1;
+  const elongazione = Math.acos(cosE) * R2D;
+  /* la frazione illuminata dipende dall\u2019elongazione */
+  const illuminata = (1 - Math.cos(elongazione * D2R)) / 2;
+  const sinodico = 29.530588853;
+  const eta = (elongazione / 360) * sinodico;
+  /* il nome della fase */
+  let nome = "Luna nuova";
+  if(eta < 1.85) nome = "Luna nuova";
+  else if(eta < 5.54) nome = "Falce crescente";
+  else if(eta < 9.23) nome = "Primo quarto";
+  else if(eta < 12.91) nome = "Gibbosa crescente";
+  else if(eta < 16.61) nome = "Luna piena";
+  else if(eta < 20.30) nome = "Gibbosa calante";
+  else if(eta < 23.99) nome = "Ultimo quarto";
+  else if(eta < 27.68) nome = "Falce calante";
+  else nome = "Luna nuova";
+  return { eta: eta, illuminata: illuminata, nome: nome };
+}
+
+/* Disegna la luna con la parte illuminata e gli orari di sorgere, culminazione e tramonto. */
+function drawFaseLunare(){
+  const tela = document.getElementById("faseCanvas");
+  const testo = document.getElementById("faseTesto");
+  if(!tela && !testo) return;
+  const base = localDate();
+  const fase = faseLunare(base);
+
+  if(tela){
+    const x = tela.getContext("2d"), w = tela.width, h = tela.height;
+    x.clearRect(0, 0, w, h);
+    const cx = w/2, cy = h/2, R = Math.min(w, h) * 0.34;
+    /* disco scuro */
+    x.beginPath(); x.arc(cx, cy, R, 0, Math.PI*2);
+    x.fillStyle = "#17203a"; x.fill();
+    x.strokeStyle = "#3d5a86"; x.lineWidth = 1.5; x.stroke();
+    /* parte illuminata: crescendo da destra, calando da sinistra */
+    const cresce = fase.eta < 14.77;
+    x.save();
+    x.beginPath();
+    x.arc(cx, cy, R, -Math.PI/2, Math.PI/2, !cresce);
+    /* semiellisse con ampiezza secondo la frazione illuminata */
+    const k = 1 - 2 * fase.illuminata;
+    const dir = cresce ? 1 : -1;
+    const rx = Math.abs(R * k);
+    x.ellipse(cx, cy, rx, R, 0, Math.PI/2, -Math.PI/2, k > 0 ? !cresce : cresce);
+    x.closePath();
+    x.fillStyle = "#eef4ff"; x.fill();
+    x.restore();
+  }
+
+  if(testo){
+    const luna = state.positions.find(function(o){ return o.name === "Luna"; });
+    const curva = luna ? curvaDelGiorno(luna, base) : null;
+    const riga = function(etichetta, valore){
+      return "<div class=\"info-riga\"><span>" + etichetta + "</span><strong>" + valore + "</strong></div>";
+    };
+    const perc = Math.round(fase.illuminata * 100);
+    let html = riga("Fase", fase.nome) +
+      riga("Illuminazione", perc + "%") +
+      riga("Et\u00e0", fase.eta.toFixed(1) + " giorni");
+    if(curva){
+      html += riga("Sorge", curva.sorgere ? orarioDaMinuti(curva.sorgere.minuti) + " \u00B7 0\u00B0" : "non sorge") +
+              riga("Culmina", curva.culminazione ? orarioDaMinuti(curva.culminazione.minuti) + " \u00B7 " + curva.culminazione.alt.toFixed(1) + "\u00B0" : "\u2014") +
+              riga("Tramonta", curva.tramonto ? orarioDaMinuti(curva.tramonto.minuti) + " \u00B7 0\u00B0" : "non tramonta");
+    }
+    testo.innerHTML = html;
   }
 }
 
