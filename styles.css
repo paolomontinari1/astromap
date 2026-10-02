@@ -82,3 +82,20 @@
 .fase-riga{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center;margin-top:6px}
 #faseCanvas{width:120px;height:120px;display:block}
 @media(max-width:760px){.fase-riga{grid-template-columns:1fr}}
+
+.plan-tools{display:flex;gap:6px;flex-wrap:wrap}
+.plan-stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;margin-top:12px}
+.plan-draw{background:linear-gradient(150deg,rgba(16,26,49,.95),rgba(8,14,29,.97));border:1px solid #253150;border-radius:16px;padding:14px}
+#planCanvas{width:100%;height:auto;display:block;cursor:crosshair;touch-action:none}
+.plan-help{font-size:11px;line-height:1.55;margin:10px 0 0}
+.plan-side{background:linear-gradient(150deg,rgba(16,26,49,.95),rgba(8,14,29,.97));border:1px solid #253150;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.plan-valore{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:2px 0 12px}
+.plan-valore strong{color:#58d6c1;font-size:20px}
+.plan-valore span{color:#95a4c5;font-size:11px}
+.plan-riepilogo{display:grid;gap:6px;margin:8px 0 14px}
+.plan-finestra{border:1px solid #253150;border-radius:11px;padding:10px}
+.plan-finestra h4{margin:0 0 6px;font-size:13px;color:#58d6c1}
+.plan-finestra p{margin:2px 0;font-size:12px;color:#dfe8ff}
+.plan-finestra small{color:#95a4c5;font-size:11px}
+.plan-avviso{border:1px solid #6b5a20;background:rgba(255,200,91,.10);border-radius:11px;padding:10px;font-size:12px;color:#ffe6a3}
+@media(max-width:1100px){.plan-stage{grid-template-columns:1fr}}

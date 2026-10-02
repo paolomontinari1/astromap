@@ -396,17 +396,10 @@ function drawDetails(){
   if(fb) fb.onclick = function(){ toast(o.name + ' aggiunto al piano osservativo'); };
 }
 function drawPlanner(){
-  const host = $('#plannerCards'); if(!host) return;
-  const best = state.positions.filter(function(o){ return o.alt > 5 && o.name !== 'Sole'; })
-    .sort(function(a,b){ return b.alt - a.alt; }).slice(0,6);
-  if(!best.length){ host.innerHTML = '<p class="muted">Nessun obiettivo favorevole per questo momento.</p>'; return; }
-  host.innerHTML = best.map(function(o){
-    return '<article class="plan-card"><h3>' + o.name + '</h3>' +
-      '<div class="score">' + Math.round(Math.min(99, o.alt + 25)) + '%</div>' +
-      '<p class="muted">' + o.kind + ' &middot; ' + cardinal(o.az) + '</p>' +
-      '<strong>' + o.alt.toFixed(1) + '&deg; sull&rsquo;orizzonte</strong></article>';
-  }).join('');
+  try { disegnaPlanCanvas(); } catch(e){ console.warn("tela pianificatore", e); }
+  try { disegnaRiepilogo(); } catch(e){ console.warn("riepilogo", e); }
 }
+
 function toast(m){
   const t = $('#toast'); if(!t) return;
   t.textContent = m; t.classList.add('show');
@@ -746,6 +739,262 @@ function drawFaseLunare(){
     }
     testo.innerHTML = html;
   }
+}
+
+/* ================= pianificatore della ripresa ================= */
+
+/* La sagoma della visuale: un\u2019altezza per ogni azimut, in gradi.
+   I valori stanno in planSagoma[azimut], con passo di 5 gradi (72 valori).
+   0 = non vedo in quella direzione, 90 = vedo fino allo zenit,
+   oltre 90 = vedo oltre lo zenit verso l\u2019azimut opposto. */
+const PASS0 = 5;
+let planSagoma = null;
+
+function sagomaLibera(){
+  const s = [];
+  for(let a = 0; a < 360; a += PASS0) s.push(0);
+  return s;
+}
+/* La sagoma predefinita: orizzonte libero fino a 30 gradi su tutto il giro. */
+function sagomaPredefinita(){
+  const s = [];
+  for(let a = 0; a < 360; a += PASS0) s.push(30);
+  return s;
+}
+
+/* Disegna il cerchio, la sagoma e l\u2019oggetto selezionato. */
+function disegnaPlanCanvas(){
+  const c = document.getElementById("planCanvas");
+  if(!c) return;
+  const x = c.getContext("2d"), w = c.width, h = c.height;
+  const cx = w/2, cy = h/2;
+  const R = Math.min(w, h) * 0.44;
+  x.clearRect(0, 0, w, h);
+
+  /* sfondo */
+  const sfondo = x.createRadialGradient(cx, cy, 10, cx, cy, R);
+  sfondo.addColorStop(0, "#101a31");
+  sfondo.addColorStop(1, "#080f20");
+  x.fillStyle = sfondo;
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI*2); x.fill();
+
+  /* anelli di riferimento: 0, 30, 60, 90 gradi */
+  const anelli = [0, 30, 60, 90];
+  for(let i = 0; i < anelli.length; i++){
+    const g = anelli[i];
+    const r = R * (1 - g/90);
+    x.strokeStyle = (g === 0) ? "rgba(88,214,193,.7)" : "rgba(100,130,175,.22)";
+    x.lineWidth = (g === 0) ? 2 : 1;
+    x.beginPath(); x.arc(cx, cy, r, 0, Math.PI*2); x.stroke();
+  }
+  /* il centro e\u2019 lo zenit: cerchietto */
+  x.strokeStyle = "rgba(88,214,193,.45)"; x.lineWidth = 1;
+  x.beginPath(); x.arc(cx, cy, 4, 0, Math.PI*2); x.stroke();
+
+  /* raggi cardinali */
+  x.strokeStyle = "rgba(100,130,175,.25)"; x.lineWidth = 1;
+  x.font = "bold 18px system-ui"; x.textAlign = "center"; x.fillStyle = "#8fa1c5";
+  const card = [["N",0],["E",90],["S",180],["O",270]];
+  for(let k = 0; k < card.length; k++){
+    const az = card[k][1] * D2R;
+    x.beginPath();
+    x.moveTo(cx, cy);
+    x.lineTo(cx + Math.sin(az)*R, cy - Math.cos(az)*R);
+    x.stroke();
+    x.fillText(card[k][0], cx + Math.sin(az)*(R+24), cy - Math.cos(az)*(R+24) + 6);
+  }
+  /* ogni 30 gradi di azimut, con l\u2019etichetta */
+  x.font = "10px system-ui"; x.fillStyle = "#7c8dae";
+  for(let a = 0; a < 360; a += 30){
+    const az = a * D2R;
+    x.fillText(a + "\u00B0", cx + Math.sin(az)*(R+42), cy - Math.cos(az)*(R+42));
+  }
+
+  /* etichette di altezza sull\u2019asse Nord */
+  x.textAlign = "left"; x.font = "10px system-ui"; x.fillStyle = "#7c8dae";
+  for(let i = 0; i < anelli.length; i++){
+    const g = anelli[i];
+    x.fillText(g + "\u00B0", cx + 6, cy - R*(1 - g/90) + 4);
+  }
+  x.fillStyle = "#58d6c1";
+  x.fillText("oltre lo zenit", cx + 10, cy + 16);
+
+  /* la sagoma disegnata dall\u2019utente */
+  if(planSagoma){
+    const punti = [];
+    for(let a = 0; a < 360; a += PASS0){
+      const alt = planSagoma[a / PASS0] || 0;
+      /* oltre 90 gradi: il punto si specchia sull\u2019azimut opposto */
+      let az = a, quota = alt;
+      if(alt > 90){ az = (a + 180) % 360; quota = 180 - alt; }
+      const r = R * Math.max(0, (90 - quota) / 90) * (quota >= 0 ? 1 : 1);
+      const azr = az * D2R;
+      punti.push([cx + Math.sin(azr)*r, cy - Math.cos(azr)*r, a, alt]);
+    }
+    x.beginPath();
+    for(let p = 0; p < punti.length; p++){
+      if(p === 0) x.moveTo(punti[p][0], punti[p][1]);
+      else x.lineTo(punti[p][0], punti[p][1]);
+    }
+    x.closePath();
+    x.fillStyle = "rgba(88,214,193,.16)";
+    x.fill();
+    x.strokeStyle = "#58d6c1"; x.lineWidth = 2; x.stroke();
+  }
+
+  /* l\u2019oggetto selezionato, se esiste */
+  const o = state.selected;
+  if(o && typeof o.alt === "number"){
+    let az = o.az, quota = o.alt;
+    if(quota > 90){ az = (o.az + 180) % 360; quota = 180 - quota; }
+    const dentro = quota >= 0 && quota <= 90;
+    const r = dentro ? R * (90 - quota) / 90 : R;
+    const azr = az * D2R;
+    const px = cx + Math.sin(azr)*r, py = cy - Math.cos(azr)*r;
+    x.beginPath(); x.arc(px, py, 7, 0, Math.PI*2);
+    x.fillStyle = "#ffc85b"; x.fill();
+    x.strokeStyle = "#05201c"; x.lineWidth = 2; x.stroke();
+    x.font = "700 12px system-ui"; x.textAlign = "left"; x.fillStyle = "#ffc85b";
+    x.fillText(o.name, px + 11, py + 4);
+  }
+}
+
+/* Traduce un punto del cerchio in azimut e altezza. */
+function puntoInAzimutAltezza(px, py){
+  const c = document.getElementById("planCanvas");
+  if(!c) return null;
+  const w = c.width, h = c.height, cx = w/2, cy = h/2;
+  const R = Math.min(w, h) * 0.44;
+  const dx = px - cx, dy = cy - py;
+  const distanza = Math.hypot(dx, dy);
+  const az = norm(Math.atan2(dx, dy) * R2D);
+  let alt = 90 * (1 - distanza / R);
+  /* dentro il centro significa oltre lo zenith: misuro sull\u2019azimut opposto */
+  if(alt < 0){ alt = Math.min(170, 180 - Math.abs(alt)); }
+  return { az: az, alt: alt };
+}
+
+/* Registra un punto nella sagoma, con arrotondamento all\u2019azimut piu\u2019 vicino. */
+function registraPunto(px, py){
+  if(!planSagoma) planSagoma = sagomaLibera();
+  const p = puntoInAzimutAltezza(px, py);
+  if(!p) return;
+  const passo = Math.max(0, Math.min(359, Math.round(p.az / PASS0) * PASS0));
+  planSagoma[passo / PASS0] = Math.max(0, Math.min(170, p.alt));
+  /* riempio anche i due lati vicini, cosi\u00ec il disegno resta continuo */
+  const prima = (passo - PASS0 + 360) % 360, dopo = (passo + PASS0) % 360;
+  if(!planSagoma[prima / PASS0] || planSagoma[prima / PASS0] < p.alt) planSagoma[prima / PASS0] = Math.max(0, Math.min(170, p.alt));
+  if(!planSagoma[dopo / PASS0] || planSagoma[dopo / PASS0] < p.alt) planSagoma[dopo / PASS0] = Math.max(0, Math.min(170, p.alt));
+  disegnaPlanCanvas();
+}
+
+/* L\u2019altezza libera per un certo azimut, secondo la sagoma disegnata. */
+function quotaVisibile(az){
+  const s = planSagoma || sagomaPredefinita();
+  const i = ((Math.round(norm(az) / PASS0) * PASS0) % 360) / PASS0;
+  const tetto = s[i];
+  /* se la sagoma supera 90, la visuale copre anche OLTRE lo zenith:
+     verso l\u2019azimut opposto il tetto diventa 180 meno il valore */
+  return { tetto: tetto, oltreZenit: Math.max(0, tetto - 90) };
+}
+
+/* L\u2019oggetto e\u2019 visibile a questa altezza e azimut? */
+function oggettoVisibile(o){
+  if(!o) return false;
+  let az = o.az, alt = o.alt;
+  /* se l\u2019oggetto e\u2019 oltre lo zenith lo misuro dal lato opposto */
+  if(alt > 90){ az = norm(az + 180); alt = 180 - alt; }
+  if(alt < 0) return false;
+  const q = quotaVisibile(az);
+  return alt <= q.tetto;
+}
+
+/* Calcola la finestra di ripresa per l\u2019oggetto scelto. */
+function calcolaFinestra(o, soglia){
+  if(!o) return null;
+  const base = localDate();
+  const giorno = new Date(base.getTime());
+  giorno.setHours(0, 0, 0, 0);
+  const tratti = [];
+  let inizio = null;
+  let lunaMassima = 0, lunaOrari = 0;
+  for(let m = 0; m <= 1440; m += 10){
+    const d = new Date(giorno.getTime());
+    d.setMinutes(m);
+    const p = position(o, d);
+    const sopra = p.alt >= soglia && oggettoVisibile({ az: p.az, alt: p.alt });
+    /* disturbo della Luna, se richiesto */
+    if(sopra){
+      const fl = faseLunare(d);
+      const lunaAlt = position({ name: "Luna", body: "moon", ra: 0, dec: 0, type: "solar" }, d).alt;
+      if(lunaAlt > 0){
+        lunaOrari++;
+        if(fl.illuminata * 100 > lunaMassima) lunaMassima = fl.illuminata * 100;
+      }
+    }
+    if(sopra && inizio === null) inizio = m;
+    if(!sopra && inizio !== null){ tratti.push([inizio, m]); inizio = null; }
+  }
+  if(inizio !== null) tratti.push([inizio, 1440]);
+  /* se l\u2019ultimo tratto finisce a mezzanotte e il primo comincia subito dopo,
+     li unisco: la finestra attraversa il cambio di giorno */
+  if(tratti.length > 1 && tratti[tratti.length - 1][1] === 1440 && tratti[0][0] <= 20){
+    const ultimo = tratti.pop();
+    tratti[0] = [ultimo[0] - 1440, tratti[0][1]];
+  }
+  return { tratti: tratti, lunaMassima: lunaMassima, lunaOrari: lunaOrari };
+}
+
+/* Mostra il riepilogo della pianificazione. */
+function disegnaRiepilogo(){
+  const host = document.getElementById("planRiepilogo");
+  if(!host) return;
+  const o = state.selected;
+  const sogliaEl = document.getElementById("planSoglia");
+  const soglia = sogliaEl ? parseInt(sogliaEl.value, 10) : 30;
+  const lunaEl = document.getElementById("planLuna");
+  const lunaMax = lunaEl ? parseInt(lunaEl.value, 10) : 60;
+  if(!o){
+    host.innerHTML = "<div class=\"plan-avviso\">Scegli un oggetto dalla ricerca o dall\u2019elenco: il pianificatore ti dir\u00e0 quando fotografarlo.</div>";
+    return;
+  }
+  const f = calcolaFinestra(o, soglia);
+  if(!f || !f.tratti.length){
+    host.innerHTML = "<div class=\"plan-avviso\">" + o.name + " non raggiunge mai i " + soglia +
+      "&deg; dentro la tua visuale, in questa data.</div>";
+    return;
+  }
+  /* altezza massima dell\u2019oggetto nella giornata, per contesto */
+  let culmine = null;
+  for(let m2 = 0; m2 <= 1440; m2 += 10){
+    const d2 = new Date(localDate().getTime());
+    d2.setHours(0, 0, 0, 0); d2.setMinutes(m2);
+    const p2 = position(o, d2);
+    if(!culmine || p2.alt > culmine.alt) culmine = { alt: p2.alt, minuti: m2 };
+  }
+  let html = "";
+  if(culmine){
+    html += "<div class=\\"plan-finestra\\"><h4>Massimo della giornata</h4><p>" +
+      culmine.alt.toFixed(1) + "&deg; alle " + orarioDaMinuti(culmine.minuti) + "</p></div>";
+  }
+  for(let i = 0; i < f.tratti.length; i++){
+    const t = f.tratti[i];
+    const durata = t[1] - t[0];
+    const ore = Math.floor(durata / 60), minuti = durata % 60;
+    html += "<div class=\"plan-finestra\"><h4>Finestra " + (i + 1) + "</h4>" +
+      "<p>Inizio <strong>" + orarioDaMinuti(t[0]) + "</strong> \u2014 fine <strong>" + orarioDaMinuti(t[1]) + "</strong></p>" +
+      "<p><small>durata " + ore + " h " + (minuti < 10 ? "0" : "") + minuti + " min</small></p></div>";
+  }
+  if(f.lunaOrari > 0 && f.lunaMassima > lunaMax){
+    html += "<div class=\"plan-avviso\">La Luna &egrave; sopra l\u2019orizzonte durante la finestra, illuminata fino al " + Math.round(f.lunaMassima) + "%. Sopra la tua soglia del " + lunaMax + "%: meglio un altro giorno.</div>";
+  } else if(f.lunaOrari > 0){
+    html += "<div class=\"plan-finestra\"><h4>Luna</h4><p><small>Presente sopra l\u2019orizzonte, illuminata fino al " +
+      Math.round(f.lunaMassima) + "%: entro la tua soglia.</small></p></div>";
+  }
+  const dentro = oggettoVisibile(o);
+  html += "<div class=\"plan-finestra\"><h4>Adesso</h4><p>" + o.name + " &egrave; a " + o.alt.toFixed(1) +
+    "&deg;, " + cardinal(o.az) + "</p><p><small>" + (dentro ? "dentro la tua visuale" : "fuori dalla tua visuale") + "</small></p></div>";
+  host.innerHTML = html;
 }
 
 function chiave(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -1240,11 +1489,110 @@ function collegaEventi(){
   }
 }
 
+/* Eventi della pagina pianificatore: disegno col mouse, cursori, salvataggio. */
+function collegaPianificatore(){
+  const c = document.getElementById("planCanvas");
+  if(!c) return;
+  let disegnando = false;
+  const posizione = function(e){
+    const r = c.getBoundingClientRect();
+    const px = (e.clientX - r.left) * c.width / r.width;
+    const py = (e.clientY - r.top) * c.height / r.height;
+    return { x: px, y: py };
+  };
+  c.addEventListener("pointerdown", function(e){
+    disegnando = true;
+    if(c.setPointerCapture) c.setPointerCapture(e.pointerId);
+    const p = posizione(e);
+    registraPunto(p.x, p.y);
+  });
+  c.addEventListener("pointermove", function(e){
+    if(!disegnando) return;
+    const p = posizione(e);
+    registraPunto(p.x, p.y);
+  });
+  c.addEventListener("pointerup", function(e){
+    disegnando = false;
+    disegnaRiepilogo();
+  });
+  c.addEventListener("pointerleave", function(){ disegnando = false; });
+
+  const cancella = document.getElementById("planClearBtn");
+  if(cancella) cancella.onclick = function(){
+    planSagoma = sagomaLibera();
+    disegnaPlanCanvas(); disegnaRiepilogo();
+    toast("Disegno cancellato: nessuna direzione visibile");
+  };
+  const libero = document.getElementById("planFreeBtn");
+  if(libero) libero.onclick = function(){
+    planSagoma = sagomaPredefinita();
+    disegnaPlanCanvas(); disegnaRiepilogo();
+    toast("Orizzonte libero fino a 30 gradi");
+  };
+  const salva = document.getElementById("planSaveBtn");
+  if(salva) salva.onclick = function(){
+    try {
+      localStorage.setItem("astromappa-sagoma", JSON.stringify(planSagoma));
+      toast("Visuale salvata sul dispositivo");
+    } catch(e){ toast("Non riesco a salvare: memoria non disponibile"); }
+  };
+
+  const soglia = document.getElementById("planSoglia");
+  if(soglia) soglia.oninput = function(e){
+    const v = document.getElementById("planSogliaVal");
+    if(v) v.textContent = e.target.value + "\u00B0";
+    disegnaRiepilogo();
+  };
+  const luna = document.getElementById("planLuna");
+  if(luna) luna.oninput = function(e){
+    const v = document.getElementById("planLunaVal");
+    if(v) v.textContent = e.target.value + "%";
+    disegnaRiepilogo();
+  };
+
+  /* recupero la sagoma salvata */
+  try {
+    const salvata = localStorage.getItem("astromappa-sagoma");
+    if(salvata) planSagoma = JSON.parse(salvata);
+  } catch(e){ console.warn("sagoma salvata non letta", e); }
+  if(!planSagoma) planSagoma = sagomaPredefinita();
+  disegnaPlanCanvas();
+}
+
+/* Collegamento dei pulsanti delle schede. Era andato perso: senza di esso
+   la pagina Pianificatore non si apre. */
+function collegaSchede(){
+  const schede = document.querySelectorAll(".tab");
+  if(!schede.length) return;
+  for(let i = 0; i < schede.length; i++){
+    const b = schede[i];
+    b.onclick = function(){
+      for(let k = 0; k < schede.length; k++) schede[k].classList.remove("active");
+      const viste = document.querySelectorAll(".view");
+      for(let k = 0; k < viste.length; k++) viste[k].classList.remove("active");
+      b.classList.add("active");
+      const vista = document.getElementById(b.dataset.view + "View");
+      if(vista) vista.classList.add("active");
+      if(b.dataset.view === "planner"){
+        try { disegnaPlanCanvas(); disegnaRiepilogo(); } catch(e){ console.warn("pianificatore", e); }
+      }
+      if(b.dataset.view === "map"){
+        try {
+          if(state.map){ setTimeout(function(){ state.map.invalidateSize(); }, 60); }
+          else if(typeof drawMap === "function"){ drawMap(); }
+        } catch(e){ console.warn("mappa", e); }
+      }
+    };
+  }
+}
+
 function avvia(){
   try { costruisciCatalogo(); } catch(e){ console.warn('catalogo', e); }
   console.log('catalogo pronto:', catalog.length, 'oggetti');
   try { initTime(); } catch(e){ console.warn('initTime', e); }
   try { collegaEventi(); } catch(e){ console.warn('eventi', e); }
+  try { collegaPianificatore(); } catch(e){ console.warn('pianificatore', e); }
+  try { collegaSchede(); } catch(e){ console.warn('schede', e); }
   try { compute(); } catch(e){ console.warn('calcolo', e); }
 }
 if(document.readyState === 'loading'){

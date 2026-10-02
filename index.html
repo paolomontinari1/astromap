@@ -112,8 +112,35 @@
       </div>
 
       <div id="plannerView" class="view panel">
-        <div class="view-heading"><div><span class="eyebrow">SESSIONE OSSERVATIVA</span><h2>Migliori obiettivi visibili</h2></div></div>
-        <div id="plannerCards" class="planner-grid"></div>
+        <div class="view-heading">
+          <div><span class="eyebrow">PIANIFICAZIONE DELLA RIPRESA</span><h2 id="planTitle">La mia visuale del cielo</h2></div>
+          <div class="plan-tools">
+            <button id="planClearBtn" class="button secondary">Cancella disegno</button>
+            <button id="planFreeBtn" class="button secondary">Orizzonte libero</button>
+            <button id="planSaveBtn" class="button accent">Salva visuale</button>
+          </div>
+        </div>
+        <div class="plan-stage">
+          <div class="plan-draw">
+            <canvas id="planCanvas" width="760" height="760" aria-label="Disegna la tua visuale del cielo"></canvas>
+            <p class="muted plan-help" id="planHelp">
+              Trascina il mouse sul cerchio per disegnare la tua visuale: <strong>bordo = orizzonte 0&deg;</strong>,
+              <strong>centro = zenit 90&deg;</strong>, <strong>dentro il centro = oltre lo zenit</strong> (misurato sull&rsquo;azimut opposto).
+              Il lato del cerchio in cui disegni &egrave; la direzione verso cui vedi.
+            </p>
+          </div>
+          <aside class="plan-side">
+            <span class="eyebrow">SOGLIE DI RIPRESA</span>
+            <label for="planSoglia">Altezza minima sull&rsquo;orizzonte</label>
+            <input id="planSoglia" type="range" min="0" max="80" step="1" value="30" />
+            <div class="plan-valore"><strong id="planSogliaVal">30&deg;</strong><span>soglia di ripresa</span></div>
+            <label for="planLuna">Disturbo della Luna</label>
+            <input id="planLuna" type="range" min="0" max="100" step="5" value="60" />
+            <div class="plan-valore"><strong id="planLunaVal">60%</strong><span>illuminazione massima ammessa</span></div>
+            <div id="planRiepilogo" class="plan-riepilogo"></div>
+            <div id="planCards" class="planner-grid"></div>
+          </aside>
+        </div>
       </div>
     </section>
 
