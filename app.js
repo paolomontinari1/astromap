@@ -1519,52 +1519,50 @@ function collegaEventi(){
   }
 }
 
-/* Aggiunge un gestore al pulsante Pianificatore, SENZA togliere quello esistente:
-   cosi\u00ec la scheda continua ad aprirsi come prima e in piu\u00ec si disegna il cerchio. */
-function collegaSchedaPianificatore(){
-  const pulsante = document.querySelector(".tab[data-view='planner']");
-  if(!pulsante) return;
-  pulsante.addEventListener("click", function(){
-    try {
-      disegnaPlanCanvas();
-      disegnaRiepilogoPlan();
-    } catch(e){ console.warn("disegno pianificatore", e); }
-  });
-}
 
 /* Accende i pulsanti delle schede. Prima non esisteva nessun gestore:
    e\u2019 questa la ragione per cui il pulsante Pianificatore non rispondeva. */
 function accendiSchede(){
-  const pulsanti = document.querySelectorAll(".tab");
-  if(!pulsanti.length){
-    console.warn("schede: nessun pulsante trovato");
-    return;
-  }
-  for(let i = 0; i < pulsanti.length; i++){
-    const b = pulsanti[i];
-    b.onclick = function(){
-      /* aspetto la vista indicata dal pulsante */
-      const vista = b.dataset.view;
-      for(let k = 0; k < pulsanti.length; k++) pulsanti[k].classList.remove("active");
-      const viste = document.querySelectorAll(".view");
-      for(let k = 0; k < viste.length; k++) viste[k].classList.remove("active");
-      b.classList.add("active");
-      const pannello = document.getElementById(vista + "View");
-      if(pannello) pannello.classList.add("active");
+  /* Unico responsabile delle schede. Toglie la classe attiva da TUTTE le viste,
+     poi la mette solo su quella richiesta. */
+  const pulsanti = [].slice.call(document.querySelectorAll(".tab"));
+  const viste = [].slice.call(document.querySelectorAll(".view"));
+  console.log("schede:", pulsanti.length, "pulsanti,", viste.length, "viste");
+  if(!pulsanti.length || !viste.length) return;
 
-      if(vista === "planner"){
-        /* il pianificatore legge l\u2019oggetto scelto nella scheda mappa */
-        try { disegnaPlanCanvas(); } catch(e){ console.warn("tela pianificatore", e); }
-        try { disegnaRiepilogoPlan(); } catch(e){ console.warn("riepilogo pianificatore", e); }
-      }
-      if(vista === "map"){
-        try {
-          if(state.map){ setTimeout(function(){ state.map.invalidateSize(); }, 80); }
-        } catch(e){ console.warn("ridimensionamento mappa", e); }
-      }
-    };
+  const apri = function(nomeVista){
+    for(let i = 0; i < pulsanti.length; i++){
+      if(pulsanti[i].dataset.view === nomeVista) pulsanti[i].classList.add("active");
+      else pulsanti[i].classList.remove("active");
+    }
+    for(let i = 0; i < viste.length; i++){
+      const id = viste[i].id || "";
+      const attesa = (id === nomeVista + "View");
+      if(attesa) viste[i].classList.add("active");
+      else viste[i].classList.remove("active");
+      /* traccia: utile a capire subito se la vista giusta si e\u2019 accesa */
+      console.log("vista", id, attesa ? "attiva" : "nascosta");
+    }
+    if(nomeVista === "planner"){
+      try { disegnaPlanCanvas(); } catch(e){ console.warn("tela pianificatore", e); }
+      try { disegnaRiepilogoPlan(); } catch(e){ console.warn("riepilogo pianificatore", e); }
+    }
+    if(nomeVista === "map"){
+      try {
+        if(state.map) setTimeout(function(){ state.map.invalidateSize(); }, 80);
+      } catch(e){ console.warn("ridimensionamento mappa", e); }
+    }
+  };
+
+  for(let i = 0; i < pulsanti.length; i++){
+    pulsanti[i].onclick = function(){ apri(this.dataset.view); };
   }
-  console.log("schede accese:", pulsanti.length);
+  /* la vista di partenza e quella indicata dal pulsante gia\u2019 attivo */
+  let iniziale = "map";
+  for(let i = 0; i < pulsanti.length; i++){
+    if(pulsanti[i].classList.contains("active")) iniziale = pulsanti[i].dataset.view;
+  }
+  apri(iniziale);
 }
 
 function avvia(){
